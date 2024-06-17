@@ -205,6 +205,7 @@ class EntrypointCommand extends Command
                     continue 2;
                 }
             }
+            // todo if no argument matched && default === null,
         }
 
         return $result;
