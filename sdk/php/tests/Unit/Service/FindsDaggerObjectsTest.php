@@ -2,14 +2,10 @@
 
 namespace Dagger\tests\Unit\Service;
 
-use Dagger\Json;
 use Dagger\Service\FindsDaggerObjects;
 use Dagger\Tests\Unit\Fixture\DaggerObjectWithDaggerFunctions;
 use Dagger\Tests\Unit\Fixture\NoDaggerFunctions;
-use Dagger\ValueObject\DaggerArgument;
-use Dagger\ValueObject\DaggerFunction;
 use Dagger\ValueObject\DaggerObject;
-use Dagger\ValueObject\Type;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -32,7 +28,8 @@ class FindsDaggerObjectsTest extends TestCase
     {
         yield 'test fixtures' => [
             [
-                new DaggerObject(NoDaggerFunctions::class, []),
+                NoDaggerFunctions::getValueObjectEquivalent(),
+                DaggerObjectWithDaggerFunctions::getValueObjectEquivalent(),
 
             ],
             __DIR__ . '/../Fixture',
