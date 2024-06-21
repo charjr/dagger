@@ -142,7 +142,7 @@ class EntrypointCommand extends Command
                 ));
             case TypeDefKind::OBJECT_KIND:
                 if ($type->isIdable()) {
-                    $typeDef->withObject($type->getShortName());
+                    return $typeDef->withObject($type->getShortName());
                 }
 
                 throw new RuntimeException(sprintf(
