@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dagger\tests\Unit\ValueObject;
+namespace Dagger\Tests\Unit\ValueObject;
 
 use Closure;
 use Countable;
@@ -13,6 +13,7 @@ use Generator;
 use Iterator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -20,6 +21,7 @@ use ReflectionFunction;
 use ReflectionNamedType;
 use RuntimeException;
 
+#[Group('unit')]
 #[CoversClass(Type::class)]
 class TypeTest extends TestCase
 {
