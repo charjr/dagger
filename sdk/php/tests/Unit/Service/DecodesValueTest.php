@@ -1,6 +1,6 @@
 <?php
 
-namespace Dagger\tests\Unit\Service;
+namespace Dagger\Tests\Unit\Service;
 
 use Dagger\Client;
 use Dagger\Service\DecodesValue;
@@ -8,9 +8,11 @@ use Dagger\ValueObject\Type;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
 #[CoversClass(DecodesValue::class)]
 class DecodesValueTest extends TestCase
 {
