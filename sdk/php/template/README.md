@@ -145,9 +145,11 @@ class Example
 }
 ```
 
-### Dagger Arguments ###
+### Arguments ###
 
-All parameters on a `Dagger Function` are considered to be an argument, but if you want to add metadata or simply be more explicit; you will need to add use the `#[DaggerArgument]` Attribute.
+All parameters on a `Dagger Function` are considered providable arguments,
+if you want additional metadata on an argument, such as a doc-string; 
+use the `#[Argument]` Attribute.
 
 Use the following examples for reference:
 
@@ -173,7 +175,7 @@ class Example
      
      #[DaggerFunction]
      public function myEquallyCoolDaggerFunction(
-         #[DaggerArgument]
+         #[Argument]
          string $value,
      ): string {
          // do something...
@@ -181,7 +183,7 @@ class Example
      
      #[DaggerFunction('documentation for function')]
      public function myWellDocumentedDaggerFunction(
-         #[DaggerArgument('documentation for argument')]
+         #[Argument('documentation for argument')]
          string $value,
      ): string {
          // do something...
