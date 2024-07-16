@@ -33,10 +33,10 @@ The `--mod` option must be a git url, or relative file path. The argument may be
 You can find out what methods are available by calling the following:
 
 ```
-dagger functions --mod=<path-to-module>
+dagger functions --m <path-to-module>
 ```
 
-The `--mod` option must be a git url, or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json` 
+The `-m` flag must be a git url or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json` 
 
 You should find two functions:
 - echo
@@ -49,10 +49,10 @@ This aptly named file demonstrates how DaggerFunctions should be written.
 ### Call Module Functions ###
 
 ```text
-dagger call echo  --value="hello world" -mod=<path-to-your-module>
+dagger call -m <path-to-module> echo  --value="hello world"
 ```
 
-The `--mod` option must be a git url, or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json` 
+The `-m` flag must be a git url or relative file path. The flag may be omitted if the command is called within the directory containing your module's `dagger.json`.
 
 ## How Dagger Finds Available Functions ##
 
@@ -145,9 +145,11 @@ class Example
 }
 ```
 
-### Dagger Arguments ###
+### Arguments ###
 
-All parameters on a `Dagger Function` are considered to be an argument, but if you want to add metadata or simply be more explicit; you will need to add use the `#[DaggerArgument]` Attribute.
+All parameters on a `Dagger Function` are considered providable arguments,
+if you want additional metadata on an argument, such as a doc-string; 
+use the `#[Argument]` Attribute.
 
 Use the following examples for reference:
 
@@ -173,7 +175,7 @@ class Example
      
      #[DaggerFunction]
      public function myEquallyCoolDaggerFunction(
-         #[DaggerArgument]
+         #[Argument]
          string $value,
      ): string {
          // do something...
@@ -181,7 +183,7 @@ class Example
      
      #[DaggerFunction('documentation for function')]
      public function myWellDocumentedDaggerFunction(
-         #[DaggerArgument('documentation for argument')]
+         #[Argument('documentation for argument')]
          string $value,
      ): string {
          // do something...
