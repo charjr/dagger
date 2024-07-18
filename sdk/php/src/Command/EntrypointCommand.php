@@ -152,6 +152,8 @@ class EntrypointCommand extends Command
                 return $typeDef->withKind($type->typeDefKind);
             case TypeDefKind::SCALAR_KIND:
                 return $typeDef->withScalar($type->getShortName());
+            case TypeDefKind::ENUM_KIND:
+                return $typeDef->withEnum($type->getShortName());
             case TypeDefKind::LIST_KIND:
                 return $typeDef->withListOf($this->getTypeDef($type->subtype));
             case TypeDefKind::INTERFACE_KIND:

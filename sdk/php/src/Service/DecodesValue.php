@@ -61,6 +61,8 @@ final readonly class DecodesValue
                 return new ($type->name)($value);
             case TypeDefKind::VOID_KIND:
                 return null;
+            case TypeDefKind::ENUM_KIND:
+                return ($type->name)::from($value);
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot decode custom interfaces: %s',
