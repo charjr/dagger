@@ -15,5 +15,5 @@
     ".php-cs-fixer.dist.php"
   ],
   "source": "runtime",
-  "engineVersion": "v0.11.6"
+  "engineVersion": "v0.12.0"
 }

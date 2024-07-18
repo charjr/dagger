@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"php-sdk/internal/dagger"
 )
 
 const (
@@ -17,15 +18,15 @@ const (
 )
 
 type PhpSdk struct {
-	SourceDir     *Directory
+	SourceDir     *dagger.Directory
 	RequiredPaths []string
-	Container     *Container
+	Container     *dagger.Container
 }
 
 func New(
 	// Directory with the PHP SDK source code.
 	// +optional
-	sdkSourceDir *Directory,
+	sdkSourceDir *dagger.Directory,
 ) *PhpSdk {
 	if sdkSourceDir == nil {
 		// TODO: change back to git or something remote when the runtime is ready.
@@ -33,7 +34,11 @@ func New(
 		// This is a bit of a hack, you need to call it from a parent directory but it works.
 		// Example from ../../ (the directory above the dagger git repo)
 		// dagger init --sdk=dagger/sdk/php --source=test
-		sdkSourceDir = dag.CurrentModule().Source().Directory("../").WithoutDirectory("runtime")
+		sdkSourceDir = dag.
+			CurrentModule().
+			Source().
+			Directory("../").
+			WithoutDirectory("runtime")
 	}
 
 	return &PhpSdk{
@@ -43,19 +48,28 @@ func New(
 	}
 }
 
-func (sdk *PhpSdk) Codegen(ctx context.Context, modSource *ModuleSource, introspectionJSON *File) (*GeneratedCode, error) {
+func (sdk *PhpSdk) Codegen(
+	ctx context.Context,
+	modSource *dagger.ModuleSource,
+	introspectionJSON *dagger.File,
+) (*dagger.GeneratedCode, error) {
 	ctr, err := sdk.CodegenBase(ctx, modSource, introspectionJSON)
 	if err != nil {
 		return nil, err
 	}
 
-	return dag.GeneratedCode(ctr.Directory(ModSourceDirPath)).
-			WithVCSGeneratedPaths([]string{"/codegen/generated" + "/**"}).
-			WithVCSIgnoredPaths([]string{"/codegen/generated"}),
+	return dag.
+		GeneratedCode(ctr.Directory(ModSourceDirPath)).
+		WithVCSGeneratedPaths([]string{"/codegen/generated" + "/**"}).
+		WithVCSIgnoredPaths([]string{"/codegen/generated"}),
 		nil
 }
 
-func (sdk *PhpSdk) CodegenBase(ctx context.Context, modSource *ModuleSource, introspectionJSON *File) (*Container, error) {
+func (sdk *PhpSdk) CodegenBase(
+	ctx context.Context,
+	modSource *dagger.ModuleSource,
+	introspectionJSON *dagger.File,
+) (*dagger.Container, error) {
 	ctr := sdk.Container
 
 	name, err := modSource.ModuleOriginalName(ctx)
@@ -78,21 +92,22 @@ func (sdk *PhpSdk) CodegenBase(ctx context.Context, modSource *ModuleSource, int
 		WithMountedDirectory("/codegen", sdk.SourceDir).
 		WithoutEntrypoint().
 		WithWorkdir("/codegen").
+		WithExec([]string{"apk", "add", "git", "openssh", "curl"}).
 		WithExec([]string{
-			"apk", "add", "git", "openssh", "curl",
+			"git",
+			"config",
+			"--global",
+			"url.https://github.com/.insteadOf",
+			"git@github.com:",
 		}).
-		WithExec([]string{
-			"git", "config", "--global", "url.https://github.com/.insteadOf", "git@github.com:",
-		}).
-		WithExec([]string{
-			"./install-composer.sh",
-		}).
-		WithExec([]string{
-			"php", "composer.phar", "install",
-		}).
+		WithExec([]string{"./install-composer.sh"}).
+		WithExec([]string{"php", "composer.phar", "install"}).
 		WithMountedFile("schema.json", introspectionJSON).
 		WithExec([]string{
-			"./codegen", "dagger:codegen", "--schema-file", "schema.json",
+			"./codegen",
+			"dagger:codegen",
+			"--schema-file",
+			"schema.json",
 		})
 
 	/**
@@ -103,8 +118,10 @@ func (sdk *PhpSdk) CodegenBase(ctx context.Context, modSource *ModuleSource, int
 	ctr = ctr.
 		WithMountedDirectory(ModSourceDirPath, modSource.ContextDirectory()).
 		WithWorkdir(filepath.Join(ModSourceDirPath, subPath)).
-		WithDirectory(GenDir, ctr.Directory("/codegen"), ContainerWithDirectoryOpts{
-			Exclude: []string{
+		WithDirectory(
+			GenDir,
+			ctr.Directory("/codegen"),
+			dagger.ContainerWithDirectoryOpts{Exclude: []string{
 				"codegen",
 				"runtime",
 				"vendor",
@@ -112,17 +129,26 @@ func (sdk *PhpSdk) CodegenBase(ctx context.Context, modSource *ModuleSource, int
 				"composer.phar",
 				"composer.lock",
 				"schema.json",
-			},
-		}).
+			}},
+		).
 		WithExec([]string{
-			"/codegen/init-template.sh", filepath.Join(ModSourceDirPath, subPath), name,
+			"/codegen/init-template.sh",
+			filepath.Join(ModSourceDirPath, subPath),
+			name,
 		}).
-		WithFile("./install-composer.sh", ctr.File("/codegen/install-composer.sh"))
+		WithFile(
+			"./install-composer.sh",
+			ctr.File("/codegen/install-composer.sh"),
+		)
 
 	return ctr, nil
 }
 
-func (sdk *PhpSdk) ModuleRuntime(ctx context.Context, modSource *ModuleSource, introspectionJSON *File) (*Container, error) {
+func (sdk *PhpSdk) ModuleRuntime(
+	ctx context.Context,
+	modSource *dagger.ModuleSource,
+	introspectionJSON *dagger.File,
+) (*dagger.Container, error) {
 	subPath, err := modSource.SourceSubpath(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not load module config: %w", err)
@@ -134,12 +160,8 @@ func (sdk *PhpSdk) ModuleRuntime(ctx context.Context, modSource *ModuleSource, i
 	}
 
 	ctr = ctr.
-		WithExec([]string{
-			"./install-composer.sh",
-		}).
-		WithExec([]string{
-			"php", "composer.phar", "install",
-		})
+		WithExec([]string{"./install-composer.sh"}).
+		WithExec([]string{"php", "composer.phar", "install"})
 
 	return ctr.WithEntrypoint([]string{filepath.Join(
 		ModSourceDirPath,
