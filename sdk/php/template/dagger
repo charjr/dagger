@@ -22,6 +22,4 @@ $console = new Application();
 $console->add(new EntrypointCommand());
 $console->setDefaultCommand('dagger:entrypoint');
 
-define('DAG', \Dagger\Dagger::connect());
-
 $console->run();

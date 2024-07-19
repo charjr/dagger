@@ -10,13 +10,17 @@ use Dagger\Attribute\DaggerObject;
 use Dagger\Container;
 use Dagger\Directory;
 
+use function Dagger\dag;
+
 #[DaggerObject]
 class Example
 {
      #[DaggerFunction('Echo the value to standard output')]
      public function echo(string $value): Container
      {
-         return DAG->container()->from('alpine:latest')
+         return dag()
+             ->container()
+             ->from('alpine:latest')
              ->withExec(['echo', $value]);
      }
 
@@ -27,7 +31,9 @@ class Example
          #[Argument('The pattern to search for')]
          string $pattern
     ): string {
-         return DAG->container()->from('alpine:latest')
+         return dag()
+             ->container()
+             ->from('alpine:latest')
              ->withMountedDirectory('/mnt', $directory)
              ->withWorkdir('/mnt')
              ->withExec(["grep", '-R', $pattern, '.'])

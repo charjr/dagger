@@ -23,6 +23,8 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use function Dagger\dag;
+
 #[AsCommand('dagger:entrypoint')]
 class EntrypointCommand extends Command
 {
@@ -30,7 +32,7 @@ class EntrypointCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $functionCall = DAG->currentFunctionCall();
+        $functionCall = dag()->currentFunctionCall();
         $parentName = $functionCall->parentName();
 
         try {
@@ -50,18 +52,18 @@ class EntrypointCommand extends Command
 
     private function registerModule(Dagger\FunctionCall $functionCall): int
     {
-        $daggerModule = DAG->module();
+        $daggerModule = dag()->module();
 
         $src = (new FindsSrcDirectory())();
         $daggerObjects = (new FindsDaggerObjects())($src);
 
         foreach ($daggerObjects as $daggerObject) {
-            $objectTypeDef = DAG
+            $objectTypeDef = dag()
                 ->typeDef()
                 ->withObject($this->normalizeClassname($daggerObject->name));
 
             foreach ($daggerObject->daggerFunctions as $daggerFunction) {
-                $func = DAG->function(
+                $func = dag()->function(
                     $daggerFunction->name,
                     $this->getTypeDef($daggerFunction->returnType)
                 );
@@ -142,7 +144,7 @@ class EntrypointCommand extends Command
 
     private function getTypeDef(ListOfType|Type $type): TypeDef
     {
-        $typeDef = DAG->typeDef()->withOptional($type->nullable);
+        $typeDef = dag()->typeDef()->withOptional($type->nullable);
 
         switch ($type->typeDefKind) {
             case TypeDefKind::BOOLEAN_KIND:
@@ -197,7 +199,7 @@ class EntrypointCommand extends Command
         );
 
         $result = [];
-        $decodesValue = new DecodesValue(DAG);
+        $decodesValue = new DecodesValue(dag());
         foreach ($daggerFunction->arguments as $parameter) {
             $type = $parameter->type;
 

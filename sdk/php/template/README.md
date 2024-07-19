@@ -1,10 +1,11 @@
-# Dagger PHP SDK #
+# Dagger PHP SDK
 
-You will require the Dagger engine setup locally, and it is currently up and running.
+You will require the Dagger engine setup locally.   
+This guide assumes you have dagger up and running.
 
-## Quickstart ##
+## Quickstart
 
-### Initialise the module ###
+### Initialise the module
 
 To initialise the module, call the following:
 
@@ -16,27 +17,25 @@ This will create a `dagger.json` configuration file.
 
 The `path-to-module` argument can be omitted and the module will be initialised where the command was called from.
 
-### Setup The Development Environment ###
+### Setup The Development Environment
 
-To setup the development environment, call the following:
+To set up the development environment, call the following:
 
 ```
-dagger develop --mod=<path-to-module>
+dagger develop -m <path-to-module>
 ```
 
-This will generate a copy of the classes available to you from the SDK. Making it easier to see what you have to work with. It will also generate a `src/` directory, this is required. This is where Dagger will search for available functions.
+This will generate a copy of the classes available to you from the SDK. Making it easier to see what you have to work with. It will also generate a `src/` directory if it does not exist, this is required; this is where Dagger searches for available functions.
 
-The `--mod` option must be a git url, or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json` 
+The `-m` flag must be a git url or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json`
 
-### Check Module Functions ###
+### Check Module Functions
 
 You can find out what methods are available by calling the following:
 
 ```
 dagger functions --m <path-to-module>
 ```
-
-The `-m` flag must be a git url or relative file path. The argument may be omitted if the command is called within the directory containing your module's `dagger.json` 
 
 You should find two functions:
 - echo
@@ -45,23 +44,45 @@ You should find two functions:
 These functions are written within `src/Example.php`.  
 This aptly named file demonstrates how DaggerFunctions should be written.
 
+```php
+<?php
 
-### Call Module Functions ###
+// ...
+
+use function Dagger\dag;
+
+#[DaggerObject]
+class Example
+{
+     #[DaggerFunction('Echo the value to standard output')]
+     public function echo(string $value): Container
+     {
+         return dag()
+             ->container()
+             ->from('alpine:latest')
+             ->withExec(['echo', $value]);
+     }
+
+     // ...
+}
+```
+
+You'll notice it uses a function called `dag`; this is how you get the currently connected instance of the Dagger Client.
+
+### Call Module Functions
 
 ```text
 dagger call -m <path-to-module> echo  --value="hello world"
 ```
 
-The `-m` flag must be a git url or relative file path. The flag may be omitted if the command is called within the directory containing your module's `dagger.json`.
-
-## How Dagger Finds Available Functions ##
+## How Dagger Finds Available Functions
 
 Dagger searches your `src/` directory for `Dagger Objects`, when it finds `Dagger Objects`, it searches them for `Dagger Functions`.
 
 That's it.  
 So you only need to know how to define a `Dagger Object` and a `Dagger Function`.
 
-### Dagger Objects ###
+### Dagger Objects
 
 A `Dagger Object` is any class with the `#[DaggerObject]` Attribute.
 
@@ -78,9 +99,9 @@ class Example
 }
 ```
 
-That's a `Dagger Object` technically, albeit a useless one as it has no `Dagger Functions`
+That's a `Dagger Object` technically, albeit useless without any `Dagger Functions`.
 
-### Dagger Functions ###
+### Dagger Functions
 
 A `Dagger Function` is a **public** method on a `Dagger Object` with the `#[DaggerFunction]` Attribute.
 
@@ -145,11 +166,13 @@ class Example
 }
 ```
 
-### Arguments ###
+### Arguments
 
 All parameters on a `Dagger Function` are considered providable arguments,
 if you want additional metadata on an argument, such as a doc-string; 
 use the `#[Argument]` Attribute.
+
+If any of your arguments, or return values, are arrays. Please see the section on [Lists](#lists)
 
 Use the following examples for reference:
 
@@ -160,6 +183,7 @@ namespace DaggerModule;
 
 use Dagger\Attribute\DaggerFunction;
 use Dagger\Attribute\DaggerObject;
+use Dagger\Attribute\Argument;
 
 #[DaggerObject]
 class Example
@@ -186,6 +210,94 @@ class Example
          #[Argument('documentation for argument')]
          string $value,
      ): string {
+         // do something...
+     }
+     
+     // ...
+}
+```
+
+#### Lists
+
+Lists must have their subtype specified.  
+Specifying subtypes on arguments MUST be done using the `ListOfType` attribute, do not rely on annotations for this.
+
+```php
+<?php
+
+namespace DaggerModule;
+
+use Dagger\Attribute\DaggerFunction;
+use Dagger\Attribute\DaggerObject;
+use Dagger\Attribute\Argument;
+use Dagger\Attribute\ListOfType;
+
+#[DaggerObject]
+class Example
+{ 
+     #[DaggerFunction('The subtype of an array MUST be specified')]
+     public function myInvalidList(
+         array $value,
+     ): string {
+         // do something...
+     }
+     
+     /**
+     * @param int[] $value
+     */
+     #[DaggerFunction('Annotations are not supported')]
+     public function myStillInvalidList(
+         array $value,
+     ): string {
+         // do something...
+     }
+     
+     #[DaggerFunction('ListOfType attribute is supported')]
+     public function myValidList(
+         #[ListOfType('int')]
+         array $value,
+     ): string {
+         // do something...
+     }
+     
+     // ...
+}
+```
+
+Specifying subtypes on return values MUST be done using the `ReturnsListOfType` attribute, do not rely on annotations for this.
+
+```php
+<?php
+
+namespace DaggerModule;
+
+use Dagger\Attribute\DaggerFunction;
+use Dagger\Attribute\DaggerObject;
+use Dagger\Attribute\Argument;
+use Dagger\Attribute\ReturnsListOfType;
+
+#[DaggerObject]
+class Example
+{ 
+     #[DaggerFunction('The subtype of an array MUST be specified')]
+     public function myInvalidList(): array
+     {
+         // do something...
+     }
+     
+     /**
+     * @return int[]
+     */
+     #[DaggerFunction('Annotations are not supported')]
+     public function myStillInvalidList(): array
+     {
+         // do something...
+     }
+     
+     #[DaggerFunction('ReturnsListOfType attribute is supported')]
+     #[ReturnsListOfType('int')]
+     public function myValidList(): array 
+     {
          // do something...
      }
      

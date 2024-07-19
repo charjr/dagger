@@ -60,8 +60,8 @@ func (sdk *PhpSdk) Codegen(
 
 	return dag.
 		GeneratedCode(ctr.Directory(ModSourceDirPath)).
-		WithVCSGeneratedPaths([]string{"/codegen/generated" + "/**"}).
-		WithVCSIgnoredPaths([]string{"/codegen/generated"}),
+		WithVCSGeneratedPaths([]string{GenDir + "/**"}).
+		WithVCSIgnoredPaths([]string{GenDir}),
 		nil
 }
 
