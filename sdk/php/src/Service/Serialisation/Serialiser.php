@@ -4,23 +4,33 @@ declare(strict_types=1);
 
 namespace Dagger\Service\Serialisation;
 
-use Dagger\ValueObject\ListOfType;
-use Dagger\ValueObject\Type;
-use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\EventDispatcher\EventDispatcher;
+use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
+use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 
-final readonly class ValueToJson
+final readonly class Serialiser
 {
     private Serializer $serializer;
 
-    public function __construct(
-        SubscribingHandlerInterface ...$handlers,
-    ) {
+    /**
+     * @param \JMS\Serializer\EventDispatcher\EventSubscriberInterface[] $subscribers
+     * @param \JMS\Serializer\Handler\SubscribingHandlerInterface[] $handlers
+     */
+    public function __construct(array $subscribers = [], array $handlers = [])
+    {
         $this->serializer = SerializerBuilder::create()
+            ->configureListeners(
+                function(EventDispatcher $dispatcher) use ($subscribers) {
+                    foreach ($subscribers as $subscriber) {
+                        $dispatcher->addSubscriber($subscriber);
+                    }
+                }
+            )
             ->configureHandlers(
                 function(HandlerRegistry $registry) use ($handlers) {
                     foreach ($handlers as $handler) {
@@ -32,7 +42,7 @@ final readonly class ValueToJson
             ->build();
     }
 
-    public function serialize(mixed $value): string
+    public function serialise(mixed $value): string
     {
         return $this->serializer->serialize(
             $value,
@@ -41,7 +51,7 @@ final readonly class ValueToJson
         );
     }
 
-    public function deserialize(string $value, string $className): object
+    public function deserialise(string $value, string $className): object
     {
         return $this->serializer->deserialize(
             $value,

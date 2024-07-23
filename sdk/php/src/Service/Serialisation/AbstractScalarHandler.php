@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Dagger\Service\Serialisation;
 
-use Dagger;
+use Dagger\Client\AbstractScalar;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonSerializationVisitor;
 
-final readonly class IdableHandler implements SubscribingHandlerInterface
+final readonly class AbstractScalarHandler implements SubscribingHandlerInterface
 {
-    public function __construct(
-        private Dagger\Client $dag,
-    ) {
-    }
-
     /**
      * @return array<array{
      *     direction: 1|2,
@@ -31,34 +26,36 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => Dagger\Client\IdAble::class,
-                'method' => 'serialiseIdable'
+                'type' => AbstractScalar::class,
+                'method' => 'serialise',
             ],
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
-                'format' => 'string',
-                'type' => Dagger\Client\IdAble::class,
-                'method' => 'serialiseIdable'
+                'format' => 'json',
+                'type' => AbstractScalar::class,
+                'method' => 'deserialise'
             ],
         ];
 
     }
 
-    public function serialiseIdable(
+    public function serialise(
         JsonSerializationVisitor $visitor,
-        Dagger\Client\IdAble $idable,
+        AbstractScalar $abstractScalar,
         array $type,
         Context $context
     ): string {
-        return json_encode((string) $idable->id());
+        return (string) $abstractScalar;
     }
 
-    public function deserialiseIdable(
+    public function deserialise(
         JsonSerializationVisitor $visitor,
-        string $id,
+        string $abstractScalar,
         array $type,
         Context $context
-    ): Dagger\Client\Idable {
-        var_dump($type);
+    ): AbstractScalar {
+        var_export($type);
+
+        return \Dagger\Platform::from($abstractScalar);
     }
 }
