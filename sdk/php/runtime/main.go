@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"php-sdk/internal/dagger"
+	"regexp"
+	"strings"
 )
 
 const (
@@ -159,4 +161,36 @@ func (m *PhpSdk) ModuleRuntime(
 	// We could just move CodegenBase to ModuleRuntime, but keeping them
 	// separate allows for easier future changes.
 	return m.CodegenBase(ctx, modSource, introspectionJSON)
+}
+
+func (m *PhpSdk) GenerateClassName(name string) string {
+	name = regexp.
+		MustCompile(`^[^[:alpha:]]+`).
+		ReplaceAllString(name, "")
+
+	name = regexp.
+		MustCompile(`[[:alpha:]]+`).
+		ReplaceAllStringFunc(name, func(s string) string {
+			return strings.ToUpper(s[:1]) + strings.ToLower(s[1:])
+		})
+
+	return regexp.
+		MustCompile(`[\s\-_]+`).
+		ReplaceAllString(name, "")
+}
+
+func (m *PhpSdk) GeneratePackageName(name string) string {
+	name = regexp.
+		MustCompile(`^[^[:alpha:]]+`).
+		ReplaceAllString(name, "")
+
+	name = regexp.
+		MustCompile(`[[:alpha:]]+`).
+		ReplaceAllStringFunc(name, func(s string) string {
+			return strings.ToLower(s)
+		})
+
+	return regexp.
+		MustCompile(`[\s\-_]+`).
+		ReplaceAllString(name, "-")
 }
