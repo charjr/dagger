@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/dagger/dagger/dev/internal/dagger"
 	"github.com/dagger/dagger/dev/internal/util"
 )
@@ -25,12 +27,28 @@ type PHPSDK struct {
 
 // Lint the PHP SDK
 func (t PHPSDK) Lint(ctx context.Context) error {
-	before := t.Dagger.Source()
-	after, err := t.Generate(ctx)
-	if err != nil {
+	eg, ctx := errgroup.WithContext(ctx)
+
+	eg.Go(func() error {
+		src := t.Dagger.Source().Directory(phpSDKPath)
+		_, err := dag.PhpSDKDev().Lint(src).Sync(ctx)
 		return err
-	}
-	return dag.Dirdiff().AssertEqual(ctx, before, after, []string{filepath.Join(phpSDKPath, phpSDKGeneratedDir)})
+	})
+
+	eg.Go(func() error {
+		before := t.Dagger.Source()
+		after, err := t.Generate(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		return dag.Dirdiff().AssertEqual(ctx, before, after, []string{
+			filepath.Join(phpSDKPath, phpSDKGeneratedDir),
+		})
+	})
+
+	return eg.Wait()
 }
 
 // Test the PHP SDK
