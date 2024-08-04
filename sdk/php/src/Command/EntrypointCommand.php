@@ -85,8 +85,9 @@ class EntrypointCommand extends Command
             $daggerModule = $daggerModule->withObject($objectTypeDef);
         }
 
-        $functionCall->returnValue(new Dagger\Json(json_encode(
-            (string) $daggerModule->id()
+        $functionCall->returnValue(new Dagger\Json(sprintf(
+            '"%s"',
+            (string) $daggerModule->id(),
         )));
 
         return Command::SUCCESS;
@@ -103,10 +104,18 @@ class EntrypointCommand extends Command
         $parentName = sprintf('DaggerModule\\%s', $functionCall->parentName());
         $functionName = $functionCall->name();
 
+        $encodedArgs = json_encode($functionCall->inputArgs());
+        if (!is_string($encodedArgs)) {
+            throw new RuntimeException(sprintf(
+                'Unable to json encode input arguments: %s',
+                var_export($functionCall->inputArgs(), true),
+            ));
+        }
+
         $args = $this->formatArguments(
             $parentName,
             $functionName,
-            json_decode(json_encode($functionCall->inputArgs()), true)
+            json_decode($encodedArgs, true)
         );
 
         $class = $this->getSerialiser()->deserialise(
@@ -141,6 +150,10 @@ class EntrypointCommand extends Command
     {
         $typeDef = dag()->typeDef()->withOptional($type->nullable);
 
+        if ($type instanceof ListOfType) {
+            return $typeDef->withListOf($this->getTypeDef($type->subtype));
+        }
+
         switch ($type->typeDefKind) {
             case TypeDefKind::BOOLEAN_KIND:
             case TypeDefKind::INTEGER_KIND:
@@ -151,8 +164,6 @@ class EntrypointCommand extends Command
                 return $typeDef->withScalar($type->getShortName());
             case TypeDefKind::ENUM_KIND:
                 return $typeDef->withEnum($type->getShortName());
-            case TypeDefKind::LIST_KIND:
-                return $typeDef->withListOf($this->getTypeDef($type->subtype));
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot handle custom interfaces: %s',

@@ -1,0 +1,121 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method Dagger\\\\Client\\\\AbstractClient\\:\\:queryLeaf\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client/AbstractClient.php
+
+		-
+			message: "#^Parameter \\#1 \\$array of class RecursiveArrayIterator constructor expects array\\<bool\\|float\\|int\\|string\\|null\\>, array\\<bool\\|float\\|int\\|string\\|null\\>\\|object given\\.$#"
+			count: 1
+			path: src/Client/AbstractClient.php
+
+		-
+			message: "#^Method Dagger\\\\Client\\\\AbstractObject\\:\\:queryLeaf\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Client/AbstractObject.php
+
+		-
+			message: "#^Property Dagger\\\\Client\\\\AbstractObject\\:\\:\\$lastQuery has no type specified\\.$#"
+			count: 1
+			path: src/Client/AbstractObject.php
+
+		-
+			message: "#^Parameter \\#1 \\$val of method Nette\\\\PhpGenerator\\\\ClassLike\\:\\:addComment\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/EnumVisitor.php
+
+		-
+			message: "#^Parameter \\#1 \\$val of method Nette\\\\PhpGenerator\\\\EnumCase\\:\\:addComment\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/EnumVisitor.php
+
+		-
+			message: "#^Parameter \\#1 \\$objectName of static method Dagger\\\\Codegen\\\\Introspection\\\\Helpers\\:\\:formatPhpClassName\\(\\) expects string, string\\|null given\\.$#"
+			count: 4
+			path: src/Codegen/Introspection/Helpers.php
+
+		-
+			message: "#^Part \\$type \\(GraphQL\\\\Type\\\\Definition\\\\NamedType\\|GraphQL\\\\Type\\\\Definition\\\\Type\\) of encapsed string cannot be cast to string\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/Helpers.php
+
+		-
+			message: "#^Parameter \\#1 \\$val of method Nette\\\\PhpGenerator\\\\ClassLike\\:\\:addComment\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/InputVisitor.php
+
+		-
+			message: "#^Parameter \\#1 \\$val of method Nette\\\\PhpGenerator\\\\Method\\:\\:addComment\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/ObjectVisitor.php
+
+		-
+			message: "#^Parameter \\#1 \\$val of method Nette\\\\PhpGenerator\\\\ClassLike\\:\\:addComment\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Codegen/Introspection/ScalarVisitor.php
+
+		-
+			message: "#^Method Dagger\\\\Codegen\\\\SchemaGenerator\\:\\:getJson\\(\\) should return string but returns string\\|false\\.$#"
+			count: 1
+			path: src/Codegen/SchemaGenerator.php
+
+		-
+			message: "#^Parameter \\#1 \\$introspectionQuery of static method GraphQL\\\\Utils\\\\BuildClientSchema\\:\\:build\\(\\) expects array\\<string, mixed\\>, array\\<bool\\|float\\|int\\|string\\|null\\>\\|object given\\.$#"
+			count: 1
+			path: src/Codegen/SchemaGenerator.php
+
+		-
+			message: "#^Parameter \\#1 \\$queryString of method GraphQL\\\\Client\\:\\:runRawQuery\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Codegen/SchemaGenerator.php
+
+		-
+			message: "#^Property Dagger\\\\Codegen\\\\SchemaGenerator\\:\\:\\$schemaArray \\(array\\) does not accept array\\<bool\\|float\\|int\\|string\\|null\\>\\|object\\.$#"
+			count: 1
+			path: src/Codegen/SchemaGenerator.php
+
+		-
+			message: "#^Property Dagger\\\\Codegen\\\\SchemaGenerator\\:\\:\\$schemaArray type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Codegen/SchemaGenerator.php
+
+		-
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Command/CodegenCommand.php
+
+		-
+			message: "#^Method Dagger\\\\Command\\\\GenerateModuleClassnameCommand\\:\\:toSuitableClassname\\(\\) should return string but returns string\\|null\\.$#"
+			count: 1
+			path: src/Command/GenerateModuleClassnameCommand.php
+
+		-
+			message: "#^Parameter \\#3 \\$subject of function preg_replace expects array\\|string, string\\|null given\\.$#"
+			count: 1
+			path: src/Command/GenerateModuleClassnameCommand.php
+
+		-
+			message: "#^Cannot use array destructuring on array\\<int, string\\>\\|false\\.$#"
+			count: 1
+			path: src/Connection/CliDownloader.php
+
+		-
+			message: "#^Method Dagger\\\\Connection\\\\CliDownloader\\:\\:extractCli\\(\\) should return string but returns string\\|false\\.$#"
+			count: 1
+			path: src/Connection/CliDownloader.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function trim expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Connection/CliDownloader.php
+
+		-
+			message: "#^Parameter \\#2 \\$token of static method Dagger\\\\Connection\\:\\:createGraphQlClient\\(\\) expects string, string\\|false given\\.$#"
+			count: 1
+			path: src/Connection/EnvSessionConnection.php
+
+		-
+			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|null given\\.$#"
+			count: 1
+			path: src/Connection/ProcessSessionConnection.php

@@ -77,6 +77,11 @@ final class PhpSdkDev
         return $original->diff($formatted);
     }
 
+    #[DaggerFunction('Run static analysis in source directory')]
+    public function staticAnalysis(Directory $source): Container {
+        return $this->base($source)->withExec(['phpstan']);
+    }
+
     private function base(Directory $source): Container
     {
         return dag()

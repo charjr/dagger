@@ -10,6 +10,7 @@ use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\JsonSerializationVisitor;
+use RuntimeException;
 
 final readonly class AbstractScalarHandler implements SubscribingHandlerInterface
 {
@@ -39,6 +40,12 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         ];
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function serialise(
         JsonSerializationVisitor $visitor,
         AbstractScalar $abstractScalar,
@@ -48,6 +55,12 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         return (string) $abstractScalar;
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function deserialise(
         JsonDeserializationVisitor $visitor,
         string $abstractScalar,
@@ -57,6 +70,17 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         $originalClassName = $type['params'][
             AbstractScalarSubscriber::ORIGINAL_CLASS_NAME
         ];
+
+        if (!$originalClassName instanceof AbstractScalar) {
+            throw new RuntimeException(sprintf(
+                '"%s" does not extend "%s".' .
+                'It cannot be deserialised by "%s".' .
+                'If this exception occurs it is likely to be a bug',
+                $originalClassName,
+                AbstractScalar::class,
+                self::class,
+            ));
+        }
 
         return new $originalClassName($abstractScalar);
     }

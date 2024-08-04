@@ -47,6 +47,12 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
         ];
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function serialise(
         JsonSerializationVisitor $visitor,
         IdAble $idAble,
@@ -56,6 +62,12 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
         return (string) $idAble->id();
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function deserialise(
         JsonDeserializationVisitor $visitor,
         string $idAble,

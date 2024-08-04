@@ -21,18 +21,14 @@ class ClientTest extends TestCase
     {
         $client = $this->newClient();
         $qb = new QueryBuilder();
-        $qb->selectField(
-            (new QueryBuilder('directory'))->selectField(
-                (new QueryBuilder('withNewFile'))
+        $qb->selectField((new QueryBuilder('directory'))->selectField(
+            (new QueryBuilder('withNewFile'))
+                ->setArgument('path', '/hello.txt')
+                ->setArgument('contents', 'world')
+                ->selectField((new QueryBuilder('file'))
                     ->setArgument('path', '/hello.txt')
-                    ->setArgument('contents', 'world')
-                    ->selectField(
-                        (new QueryBuilder('file'))
-                            ->setArgument('path', '/hello.txt')
-                            ->selectField('contents')
-                    )
-            )
-        );
+                    ->selectField('contents'))
+        ));
 
         $result = $client->queryLeaf($qb, 'contents');
         $this->assertEquals('world', $result);

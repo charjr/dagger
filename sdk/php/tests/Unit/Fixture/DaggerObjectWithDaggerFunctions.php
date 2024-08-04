@@ -81,6 +81,12 @@ final class DaggerObjectWithDaggerFunctions
     }
 
     #[DaggerFunction]
+    public function jsonObjectWithDefault(
+        Json $value = new Json('hello')
+    ): void {
+    }
+
+    #[DaggerFunction]
     public function implicitlyOptionalContainer(?Container $value): void
     {
     }
@@ -246,6 +252,19 @@ final class DaggerObjectWithDaggerFunctions
                             new ValueObject\Type('string'),
                             new Json('"second"'),
                         )
+                    ],
+                    new ValueObject\Type('void'),
+                ),
+                new ValueObject\DaggerFunction(
+                    'jsonObjectWithDefault',
+                    null,
+                    [
+                        new ValueObject\Argument(
+                            'value',
+                            null,
+                            new ValueObject\Type(Json::class),
+                            new Json('"hello"'),
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),

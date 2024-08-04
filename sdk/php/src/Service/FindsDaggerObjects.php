@@ -26,7 +26,7 @@ final class FindsDaggerObjects
         ));
 
         $daggerObjects = array_filter(
-            $reflector->reflectAllClasses(),
+            (array) $reflector->reflectAllClasses(),
             fn($class) => $this->isDaggerObject($class)
         );
 

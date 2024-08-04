@@ -118,6 +118,20 @@ class ArgumentTest extends TestCase
             )
         ];
 
+        yield sprintf('%s with default', Json::class) => [
+            new Argument(
+                'value',
+                null,
+                new Type(Json::class, false),
+                new Json('"hello"'),
+            ),
+            self::getReflectionParameter(
+                DaggerObjectWithDaggerFunctions::class,
+                'jsonObjectWithDefault',
+                'value',
+            )
+        ];
+
         yield 'explicitly optional File' => [
             new Argument(
                 'value',
