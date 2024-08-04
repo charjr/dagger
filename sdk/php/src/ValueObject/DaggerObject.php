@@ -13,7 +13,7 @@ use RuntimeException;
 final readonly class DaggerObject
 {
     /**
-     *@var array<string,DaggerFunction[]
+     *@var array<string,DaggerFunction>
      * name => DaggerFunction pairs
      */
     public array $daggerFunctions;

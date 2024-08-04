@@ -8,7 +8,7 @@ use Stringable;
 
 abstract readonly class AbstractScalar implements Stringable
 {
-    public function __construct(private string $value)
+    final public function __construct(private string $value)
     {
     }
 
@@ -22,7 +22,7 @@ abstract readonly class AbstractScalar implements Stringable
         return $this->value;
     }
 
-    public static function from(string $value): static
+    final public static function from(string $value): static
     {
         return new static($value);
     }
