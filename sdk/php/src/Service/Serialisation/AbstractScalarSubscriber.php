@@ -16,6 +16,14 @@ final readonly class AbstractScalarSubscriber implements EventSubscriberInterfac
         'being changed to ' .
         AbstractScalar::class;
 
+    /**
+     * @return array<array{
+     *     event: string,
+     *     method: string,
+     *     format: "json",
+     *     priority: int,
+     * }>
+     */
     public static function getSubscribedEvents(): array
     {
         return [

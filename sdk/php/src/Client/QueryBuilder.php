@@ -8,7 +8,10 @@ use GraphQL\QueryBuilder\QueryBuilder as GqlQueryBuilder;
 
 class QueryBuilder extends GqlQueryBuilder
 {
-    public function setArgument(string $argumentName, $argumentValue): QueryBuilder|AbstractQueryBuilder
+    public function setArgument(
+        string $argumentName,
+        $argumentValue
+    ): QueryBuilder|AbstractQueryBuilder
     {
         if ($argumentValue instanceof BackedEnum) {
             $value = $argumentValue->value;

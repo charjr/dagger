@@ -33,6 +33,11 @@ final class PhpSdkDev
         return $this->base($source)->withExec(['phpcs']);
     }
 
+    #[DaggerFunction('Run static analysis in source directory')]
+    public function staticAnalysis(Directory $source): Container {
+        return $this->base($source)->withExec(['phpstan']);
+    }
+
     private function base(Directory $source): Container
     {
         return dag()

@@ -7,6 +7,7 @@ namespace Dagger\ValueObject;
 use Dagger\Attribute;
 use Dagger\Client\IdAble;
 use Dagger\Json;
+use Dagger\Service\Serialisation;
 use ReflectionParameter;
 use Roave\BetterReflection\Reflection\ReflectionParameter as BetterReflectionParameter;
 
@@ -45,16 +46,13 @@ final readonly class Argument
     private static function getDefault(ReflectionParameter $parameter): ?Json
     {
         if ($parameter->isDefaultValueAvailable()) {
-            $betterReflection = BetterReflectionParameter
-                ::createFromClassNameAndMethod(
-                    $parameter->getDeclaringClass()->getName(),
-                    $parameter->getDeclaringFunction()->getName(),
-                    $parameter->getName(),
-                );
-            $default = $betterReflection->getDefaultValue();
-            return new Json(json_encode(
-                $default instanceof IdAble ? (string) $default->id() : $default
-            ));
+            $default = $parameter->getDefaultValue();
+
+            if ($default instanceof IdAble) {
+                return new Json(json_encode((string) $default->id()));
+            }
+
+            return new Json(self::getSerialiser()->serialise($default));
         }
 
         if ($parameter->allowsNull()) {
@@ -62,5 +60,13 @@ final readonly class Argument
         }
 
         return null;
+    }
+
+    private static function getSerialiser(): Serialisation\Serialiser
+    {
+            return new Serialisation\Serialiser(
+                [new Serialisation\AbstractScalarSubscriber()],
+                [new Serialisation\AbstractScalarHandler()],
+            );
     }
 }
