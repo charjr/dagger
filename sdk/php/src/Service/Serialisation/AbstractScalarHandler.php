@@ -39,6 +39,12 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         ];
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function serialise(
         JsonSerializationVisitor $visitor,
         AbstractScalar $abstractScalar,
@@ -48,6 +54,12 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         return (string) $abstractScalar;
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     params: array<string, mixed>
+     * } $type
+     */
     public function deserialise(
         JsonDeserializationVisitor $visitor,
         string $abstractScalar,
