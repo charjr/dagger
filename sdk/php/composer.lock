@@ -4,41 +4,40 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21857bf9ad179cfab772eb04bae245b4",
+    "content-hash": "917cd031ce2e962ca1600b29a5fbda8b",
     "packages": [
         {
             "name": "carnage/php-graphql-client",
-            "version": "1.14.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/carnage/php-graphql-client.git",
-                "reference": "a2b4026d63575e4c1aeb22a29edfaa7c8449af67"
+                "reference": "ab03e2d8c959b74624687e3bd1f1dea5ec1a4a59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/carnage/php-graphql-client/zipball/a2b4026d63575e4c1aeb22a29edfaa7c8449af67",
-                "reference": "a2b4026d63575e4c1aeb22a29edfaa7c8449af67",
+                "url": "https://api.github.com/repos/carnage/php-graphql-client/zipball/ab03e2d8c959b74624687e3bd1f1dea5ec1a4a59",
+                "reference": "ab03e2d8c959b74624687e3bd1f1dea5ec1a4a59",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/guzzle": "^6.3|^7.0.1",
-                "php": "^7.1 || ^8.0",
+                "guzzlehttp/guzzle": "^7.0.1",
+                "php": "^8.2",
                 "psr/http-client": "^1.0",
-                "psr/http-message": "^1.0 || ^2.0 "
-            },
-            "conflict": {
-                "guzzlehttp/psr7": "< 1.7.0"
+                "psr/http-message": "^2.0 "
             },
             "require-dev": {
                 "aws/aws-sdk-php": "^3.186",
-                "codacy/coverage": "^1.4",
-                "phpunit/phpunit": "^7.5|^8.0|^9.0"
+                "phpstan/phpstan": "^1.11.4",
+                "phpunit/phpunit": "^10.5.20",
+                "squizlabs/php_codesniffer": "3.10.1"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Move this package to require section to use AWS IAM authorization",
                 "gmostafa/php-graphql-oqm": "To have object-to-query mapping support"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -67,9 +66,9 @@
             ],
             "support": {
                 "issues": "https://github.com/carnage/php-graphql-client/issues",
-                "source": "https://github.com/carnage/php-graphql-client/tree/1.14.0"
+                "source": "https://github.com/carnage/php-graphql-client/tree/master"
             },
-            "time": "2024-06-17T12:14:59+00:00"
+            "time": "2024-08-06T12:03:21+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -3938,7 +3937,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "carnage/php-graphql-client": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
