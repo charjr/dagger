@@ -20,7 +20,6 @@ import (
 	"github.com/moby/buildkit/identity"
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
-	"golang.org/x/mod/semver"
 	"golang.org/x/sync/errgroup"
 
 	"dagger.io/dagger"
@@ -3233,6 +3232,114 @@ export class Test {
 			})
 		}
 	})
+
+	t.Run("custom external enum type", func(ctx context.Context, t *testctx.T) {
+		depSrc := `package main
+
+// Enum for Status
+type Status string
+
+const (
+	// Active status
+	Active Status = "ACTIVE"
+
+	// Inactive status
+	Inactive Status = "INACTIVE"
+)
+
+type Dep struct{}
+
+func (m *Dep) Active() Status {
+	return Active
+}
+
+func (m *Dep) Inactive() Status {
+	return Inactive
+}
+
+func (m *Dep) Invert(status Status) Status {
+	switch status {
+	case Active:
+		return Inactive
+	case Inactive:
+		return Active
+	default:
+		panic("invalid status")
+	}
+}
+`
+
+		type testCase struct {
+			sdk    string
+			source string
+		}
+		for _, tc := range []testCase{
+			{
+				sdk: "go",
+				source: `package main
+				
+import "context"
+
+type Test struct{}
+
+func (m *Test) Test(ctx context.Context) (string, error) {
+	status, err := dag.Dep().Active(ctx)
+	if err != nil {
+		return "", err
+	}
+	status, err = dag.Dep().Invert(ctx, status)
+	if err != nil {
+		return "", err
+	}
+	return string(status), nil
+}
+`,
+			},
+			{
+				sdk: "python",
+				source: `import dagger
+from dagger import dag
+
+@dagger.object_type
+class Test:
+    @dagger.function
+    async def test(self) -> str:
+        status = await dag.dep().active()
+        status = await dag.dep().invert(status)
+        return str(status)
+`,
+			},
+			{
+				sdk: "typescript",
+				source: `import { dag, func, object } from "@dagger.io/dagger"
+
+@object()
+export class Test {
+  @func()
+  async test(): Promise<string> {
+    let status = await dag.dep().active();
+    status = await dag.dep().invert(status);
+    return status;
+  }
+}
+`,
+			},
+		} {
+			tc := tc
+
+			t.Run(tc.sdk, func(ctx context.Context, t *testctx.T) {
+				c := connect(ctx, t)
+
+				modGen := modInit(t, c, tc.sdk, tc.source).
+					With(withModInitAt("./dep", "go", depSrc)).
+					With(daggerExec("install", "./dep"))
+
+				out, err := modGen.With(daggerQuery(`{test{test}}`)).Stdout(ctx)
+				require.NoError(t, err)
+				require.Equal(t, "INACTIVE", gjson.Get(out, "test.test").String())
+			})
+		}
+	})
 }
 
 func (ModuleSuite) TestConflictingSameNameDeps(ctx context.Context, t *testctx.T) {
@@ -6272,14 +6379,11 @@ func (ModuleSuite) TestModuleSchemaVersion(ctx context.Context, t *testctx.T) {
 			With(daggerQuery("{__schemaVersion}")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		if semver.IsValid(engine.Version) {
-			require.JSONEq(t, `{"__schemaVersion":"`+engine.Version+`"}`, out)
-		} else {
-			require.JSONEq(t, `{"__schemaVersion":""}`, out)
-		}
+
+		require.NotEmpty(t, gjson.Get(out, "__schemaVersion").String())
 	})
 
-	t.Run("standalone dev", func(ctx context.Context, t *testctx.T) {
+	t.Run("standalone explicit", func(ctx context.Context, t *testctx.T) {
 		c := connect(ctx, t)
 
 		work := c.Container().From(golangImage).
@@ -6293,20 +6397,18 @@ func (ModuleSuite) TestModuleSchemaVersion(ctx context.Context, t *testctx.T) {
 		require.JSONEq(t, `{"__schemaVersion":"v2.0.0"}`, out)
 	})
 
-	t.Run("cli", func(ctx context.Context, t *testctx.T) {
+	t.Run("standalone explicit dev", func(ctx context.Context, t *testctx.T) {
 		c := connect(ctx, t)
 
 		work := c.Container().From(golangImage).
 			WithMountedFile(testCLIBinPath, daggerCliFile(t, c)).
-			WithEnvVariable("_EXPERIMENTAL_DAGGER_VERSION", "v3.0.0").
-			WithWorkdir("/work").
-			With(daggerExec("init", "--name=foo", "--sdk=go", "--source=.")).
-			WithNewFile("dagger.json", `{"name": "foo", "sdk": "go", "source": ".", "engineVersion": "v2.0.0"}`)
+			WithEnvVariable("_EXPERIMENTAL_DAGGER_VERSION", "v2.0.0-dev-123").
+			WithWorkdir("/work")
 		out, err := work.
 			With(daggerQuery("{__schemaVersion}")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		require.JSONEq(t, `{"__schemaVersion":"v3.0.0"}`, out)
+		require.JSONEq(t, `{"__schemaVersion":"v2.0.0"}`, out)
 	})
 
 	t.Run("module", func(ctx context.Context, t *testctx.T) {
@@ -6316,7 +6418,7 @@ func (ModuleSuite) TestModuleSchemaVersion(ctx context.Context, t *testctx.T) {
 			WithMountedFile(testCLIBinPath, daggerCliFile(t, c)).
 			WithWorkdir("/work").
 			With(daggerExec("init", "--name=foo", "--sdk=go", "--source=.")).
-			WithNewFile("dagger.json", `{"name": "foo", "sdk": "go", "source": ".", "engineVersion": "v2.0.0"}`).
+			WithNewFile("dagger.json", `{"name": "foo", "sdk": "go", "source": ".", "engineVersion": "v0.11.0"}`).
 			WithNewFile("main.go", `package main
 
 import (
@@ -6346,13 +6448,13 @@ func schemaVersion(ctx context.Context) (string, error) {
 			With(daggerQuery("{foo{getVersion}}")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		require.JSONEq(t, `{"foo":{"getVersion": "v2.0.0"}}`, out)
+		require.JSONEq(t, `{"foo":{"getVersion": "v0.11.0"}}`, out)
 
 		out, err = work.
 			With(daggerCall("get-version")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		require.Contains(t, out, "v2.0.0")
+		require.Contains(t, out, "v0.11.0")
 	})
 
 	t.Run("module deps", func(ctx context.Context, t *testctx.T) {
@@ -6362,7 +6464,7 @@ func schemaVersion(ctx context.Context) (string, error) {
 			WithMountedFile(testCLIBinPath, daggerCliFile(t, c)).
 			WithWorkdir("/work/dep").
 			With(daggerExec("init", "--name=dep", "--sdk=go", "--source=.")).
-			WithNewFile("dagger.json", `{"name": "dep", "sdk": "go", "source": ".", "engineVersion": "v2.0.0"}`).
+			WithNewFile("dagger.json", `{"name": "dep", "sdk": "go", "source": ".", "engineVersion": "v0.11.0"}`).
 			WithNewFile("main.go", `package main
 
 import (
@@ -6391,7 +6493,7 @@ func schemaVersion(ctx context.Context) (string, error) {
 			WithWorkdir("/work").
 			With(daggerExec("init", "--name=foo", "--sdk=go", "--source=.")).
 			With(daggerExec("install", "./dep")).
-			WithNewFile("dagger.json", `{"name": "foo", "sdk": "go", "source": ".", "engineVersion": "v3.0.0", "dependencies": [{"name": "dep", "source": "dep"}]}`).
+			WithNewFile("dagger.json", `{"name": "foo", "sdk": "go", "source": ".", "engineVersion": "v0.10.0", "dependencies": [{"name": "dep", "source": "dep"}]}`).
 			WithNewFile("main.go", `package main
 
 import (
@@ -6430,13 +6532,13 @@ func schemaVersion(ctx context.Context) (string, error) {
 			With(daggerQuery("{foo{getVersion}}")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		require.JSONEq(t, `{"foo":{"getVersion": "v3.0.0 v2.0.0"}}`, out)
+		require.JSONEq(t, `{"foo":{"getVersion": "v0.10.0 v0.11.0"}}`, out)
 
 		out, err = work.
 			With(daggerCall("get-version")).
 			Stdout(ctx)
 		require.NoError(t, err)
-		require.Contains(t, out, "v3.0.0 v2.0.0")
+		require.Contains(t, out, "v0.10.0 v0.11.0")
 	})
 }
 
@@ -6648,6 +6750,10 @@ func sdkSource(sdk, contents string) dagger.WithContainerFunc {
 	return fileContents(sdkSourceFile(sdk), contents)
 }
 
+func sdkSourceAt(dir, sdk, contents string) dagger.WithContainerFunc {
+	return fileContents(filepath.Join(dir, sdkSourceFile(sdk)), contents)
+}
+
 func sdkSourceFile(sdk string) string {
 	switch sdk {
 	case "go":
@@ -6679,9 +6785,23 @@ func sdkCodegenFile(t *testctx.T, sdk string) string {
 
 func modInit(t *testctx.T, c *dagger.Client, sdk, contents string) *dagger.Container {
 	t.Helper()
-	return daggerCliBase(t, c).
-		With(daggerExec("init", "--name=test", "--sdk="+sdk)).
-		With(sdkSource(sdk, contents))
+	return daggerCliBase(t, c).With(withModInit(sdk, contents))
+}
+
+func withModInit(sdk, contents string) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		return ctr.
+			With(daggerExec("init", "--name=test", "--sdk="+sdk)).
+			With(sdkSource(sdk, contents))
+	}
+}
+
+func withModInitAt(dir, sdk, contents string) dagger.WithContainerFunc {
+	return func(ctr *dagger.Container) *dagger.Container {
+		return ctr.
+			With(daggerExec("init", "--name="+filepath.Base(dir), "--sdk="+sdk, dir)).
+			With(sdkSourceAt(dir, sdk, contents))
+	}
 }
 
 func currentSchema(ctx context.Context, t *testctx.T, ctr *dagger.Container) *introspection.Schema {

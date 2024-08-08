@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -34,7 +35,9 @@ func (cli *CLI) Binary(
 	if err != nil {
 		return nil, err
 	}
-	builder = builder.WithVersion(cli.Dagger.Version.String())
+	builder = builder.
+		WithVersion(cli.Dagger.Version.String()).
+		WithTag(cli.Dagger.Tag)
 	if platform != "" {
 		builder = builder.WithPlatform(platform)
 	}
@@ -62,11 +65,34 @@ func (cli *CLI) Publish(
 	awsRegion *dagger.Secret,
 	awsBucket *dagger.Secret,
 
-	artefactsFQDN *dagger.Secret,
+	artefactsFQDN string,
 ) error {
+	ctr, err := publishEnv(ctx)
+	if err != nil {
+		return err
+	}
+	ctr = ctr.
+		WithWorkdir("/app").
+		WithMountedDirectory("/app", cli.Dagger.Source()).
+		WithDirectory("/app/.git", gitDir)
+
+	tag := cli.Dagger.Tag
+	_, err = ctr.WithExec([]string{"git", "show-ref", "--verify", "refs/tags/" + tag}).Sync(ctx)
+	if err != nil {
+		err, ok := err.(*ExecError)
+		if !ok || !strings.Contains(err.Stderr, "not a valid ref") {
+			return err
+		}
+
+		// clear the set tag
+		tag = ""
+		// goreleaser refuses to run if there isn't a tag, so set it to a dummy but valid semver
+		ctr = ctr.WithExec([]string{"git", "tag", "0.0.0"})
+	}
+
 	args := []string{"release", "--clean", "--skip-validate", "--debug"}
-	if cli.Dagger.Version.Tag != "" {
-		args = append(args, "--release-notes", fmt.Sprintf(".changes/%s.md", cli.Dagger.Version.Tag))
+	if tag != "" {
+		args = append(args, "--release-notes", fmt.Sprintf(".changes/%s.md", tag))
 	} else {
 		// if this isn't an official semver version, do a dev release
 		args = append(args,
@@ -75,14 +101,7 @@ func (cli *CLI) Publish(
 		)
 	}
 
-	ctr, err := publishEnv(ctx)
-	if err != nil {
-		return err
-	}
 	_, err = ctr.
-		WithWorkdir("/app").
-		WithMountedDirectory("/app", cli.Dagger.Source()).
-		WithDirectory("/app/.git", gitDir).
 		WithEnvVariable("GH_ORG_NAME", githubOrgName).
 		WithSecretVariable("GITHUB_TOKEN", githubToken).
 		WithSecretVariable("GORELEASER_KEY", goreleaserKey).
@@ -90,15 +109,9 @@ func (cli *CLI) Publish(
 		WithSecretVariable("AWS_SECRET_ACCESS_KEY", awsSecretAccessKey).
 		WithSecretVariable("AWS_REGION", awsRegion).
 		WithSecretVariable("AWS_BUCKET", awsBucket).
-		WithSecretVariable("ARTEFACTS_FQDN", artefactsFQDN).
+		WithEnvVariable("ARTEFACTS_FQDN", artefactsFQDN).
 		WithEnvVariable("ENGINE_VERSION", cli.Dagger.Version.String()).
-		With(func(ctr *dagger.Container) *dagger.Container {
-			if cli.Dagger.Version.Tag == "" {
-				// goreleaser refuses to run if there isn't a tag, so set it to a dummy but valid semver
-				return ctr.WithExec([]string{"git", "tag", "0.0.0"})
-			}
-			return ctr
-		}).
+		WithEnvVariable("ENGINE_TAG", cli.Dagger.Tag).
 		WithEntrypoint([]string{"/sbin/tini", "--", "/entrypoint.sh"}).
 		WithExec(args, dagger.ContainerWithExecOpts{
 			UseEntrypoint: true,
@@ -121,7 +134,9 @@ func (cli *CLI) TestPublish(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	builder = builder.WithVersion(cli.Dagger.Version.String())
+	builder = builder.
+		WithVersion(cli.Dagger.Version.String()).
+		WithTag(cli.Dagger.Tag)
 
 	var eg errgroup.Group
 	for _, os := range oses {

@@ -30,17 +30,18 @@ If you do not have Homebrew installed, or you want to install a specific version
 
 ```shell
 cd /usr/local
-curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.3 sh
+curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.4 sh
 
 ./bin/dagger version
-dagger v0.12.3 (registry.dagger.io/engine) darwin/arm64
+dagger v0.12.4 (registry.dagger.io/engine:v0.12.4) darwin/arm64
 ```
+[View source](https://github.com/dagger/dagger/blob/main/install.sh)
 
 If your user account doesn't have sufficient privileges to install in `/usr/local` and `sudo` is available, use the following command instead:
 
 ```shell
 cd /usr/local
-curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.3 sudo sh
+curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.4 sudo sh
 ```
 
 </TabItem>
@@ -52,6 +53,7 @@ The quickest way of installing `dagger` on Linux is to run the following command
 ```shell
 curl -L https://dl.dagger.io/dagger/install.sh | BIN_DIR=$HOME/.local/bin sh
 ```
+[View source](https://github.com/dagger/dagger/blob/main/install.sh)
 
 This installs `dagger` in `$HOME/.local/bin`:
 
@@ -63,10 +65,10 @@ dagger is $HOME/.local/bin/dagger
 If you want to install a specific version of `dagger`, you can run:
 
 ```shell
-curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.3 sh
+curl -L https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.12.4 sh
 
 ./bin/dagger version
-dagger v0.12.3 (registry.dagger.io/engine) linux/amd64
+dagger v0.12.4 (registry.dagger.io/engine:v0.12.4) linux/amd64
 ```
 
 </TabItem>
@@ -80,6 +82,7 @@ The quickest way of installing `dagger` on Windows is to run the following comma
 ```powershell
 Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression; Install-Dagger
 ```
+[View source](https://github.com/dagger/dagger/blob/main/install.ps1)
 
 To install Dagger to a custom location, specify the location using the `-InstallPath` parameter.
 
@@ -92,20 +95,20 @@ To install a specific version of Dagger, specify the version with the `-DaggerVe
 
 ```powershell
 Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression;
-Install-Dagger -DaggerVersion 0.12.3
+Install-Dagger -DaggerVersion 0.12.4
 ```
 
 For an interactive installation process, include the `-Interactive` switch.
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression; 
+Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression;
 Install-Dagger -Interactive
 ```
 
 For further customization, such as adding Dagger to your system's PATH, additional parameters are available. To view all available options:
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression; 
+Invoke-WebRequest -UseBasicParsing -Uri https://dl.dagger.io/dagger/install.ps1 | Invoke-Expression;
 Get-Command -Name Install-Dagger -Syntax
 ```
 

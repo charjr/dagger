@@ -17,7 +17,10 @@ abstract class Connection
         $connection = static::newEnvSession();
 
         if (!empty($workingDir)) {
-            throw new InvalidArgumentException('cannot configure workdir for existing session (please use --workdir or host.directory with absolute paths instead)');
+            throw new InvalidArgumentException(
+                'cannot configure workdir for existing session' .
+                ' (please use --workdir or host.directory with absolute paths instead)'
+            );
         }
 
         if (null === $connection) {
@@ -39,6 +42,11 @@ abstract class Connection
         return new EnvSessionConnection();
     }
 
+    /**
+     * @deprecated
+     * dagger modules will always have the environment variables set
+     * so we don't need to download a CLI Client
+     */
     public static function newProcessSession(string $workDir, CliDownloader $cliDownloader): ProcessSessionConnection
     {
         return new ProcessSessionConnection($workDir, $cliDownloader);

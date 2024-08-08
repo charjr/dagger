@@ -12,12 +12,10 @@ import (
 
 	"github.com/moby/buildkit/solver/pb"
 	"github.com/vektah/gqlparser/v2/ast"
-	"golang.org/x/mod/semver"
 
 	"github.com/dagger/dagger/core/modules"
 	"github.com/dagger/dagger/dagql"
 	"github.com/dagger/dagger/dagql/call"
-	"github.com/dagger/dagger/engine"
 )
 
 type ModuleSourceKind string
@@ -225,15 +223,6 @@ func (src *ModuleSource) ModuleEngineVersion(ctx context.Context) (string, error
 		return "", fmt.Errorf("module config: %w", err)
 	}
 	if !ok {
-		return "", nil
-	}
-	if cfg.EngineVersion == "" {
-		// older versions of dagger might not produce an engine version - so
-		// return the version that engineVersion was introduced in
-		return engine.MinimumModuleVersion, nil
-	}
-	if !semver.IsValid(cfg.EngineVersion) {
-		// filter out non-semver values to simplify calling code
 		return "", nil
 	}
 	return cfg.EngineVersion, nil
@@ -475,12 +464,17 @@ func (src *GitModuleSource) HTMLURL() string {
 		return src.CloneURL + path.Join("/src", src.Commit, src.RootSubpath)
 	}
 
-	pathPrefix := "/src"
-	if parsedURL.Host == "github.com" || parsedURL.Host == "gitlab.com" {
-		pathPrefix = "/tree"
+	switch parsedURL.Host {
+	case "github.com", "gitlab.com":
+		return src.CloneURL + path.Join("/tree", src.Commit, src.RootSubpath)
+	case "dev.azure.com":
+		if src.RootSubpath != "" {
+			return fmt.Sprintf("%s/commit/%s?path=/%s", src.CloneURL, src.Commit, src.RootSubpath)
+		}
+		return src.CloneURL + path.Join("/commit", src.Commit)
+	default:
+		return src.CloneURL + path.Join("/src", src.Commit, src.RootSubpath)
 	}
-
-	return src.CloneURL + path.Join(pathPrefix, src.Commit, src.RootSubpath)
 }
 
 type ModuleSourceView struct {

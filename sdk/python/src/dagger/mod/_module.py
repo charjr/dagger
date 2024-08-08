@@ -7,8 +7,8 @@ import inspect
 import json
 import logging
 import textwrap
-import types
 import typing
+import warnings
 from collections import Counter, defaultdict
 from collections.abc import Callable, Mapping, MutableMapping
 from typing import Any, TypeAlias, TypeVar, cast
@@ -106,14 +106,24 @@ class Module:
 
             if resolver.origin is None:
                 if isinstance(resolver, FunctionResolver):
-                    func: types.FunctionType = resolver.wrapped_func
+                    func: Func = resolver.wrapped_func
                     qualname = func.__qualname__.split("<locals>.", 1)[-1]
                     if "." in qualname:
                         msg = (
                             f"Function “{qualname}” seems to be decorated in a "
-                            "class that's not itself decorated with @object_type"
+                            "class that is not itself decorated with @object_type"
                         )
                         raise UserError(msg)
+
+                    warnings.warn(
+                        (
+                            "Top-level functions are deprecated and will be "
+                            "removed in a future release. Move to an instance "
+                            "method of a @dagger.object_type decorated class."
+                        ),
+                        DeprecationWarning,
+                        stacklevel=1,
+                    )
 
                 if isinstance(resolver, FieldResolver):
                     msg = (
@@ -496,7 +506,7 @@ class Module:
         for field in dataclasses.fields(cls):
             field_def: FieldDefinition | None
             if field_def := field.metadata.get(FIELD_DEF_KEY, None):
-                r = FieldResolver(
+                r: Resolver = FieldResolver(
                     name=field_def.name or normalize_name(field.name),
                     original_name=field.name,
                     doc=get_doc(field.type),
