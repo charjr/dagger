@@ -1,6 +1,6 @@
 {
   "name": "php-sdk-dev",
-  "sdk": "github.com/dagger/dagger/sdk/php",
+  "sdk": "github.com/charjr/dagger/sdk/php@static-analysis",
   "source": ".",
   "engineVersion": "v0.12.4"
 }
