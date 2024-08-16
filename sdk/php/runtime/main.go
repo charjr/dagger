@@ -96,11 +96,20 @@ func (m *PhpSdk) CodegenBase(
 	base := dag.Container().
 		From(fmt.Sprintf("%s@%s", PhpImage, PhpDigest)).
 		WithExec([]string{"apk", "add", "git", "openssh", "curl"}).
-		WithFile("/usr/bin/composer", dag.Container().From(ComposerImage).File("/usr/bin/composer")).
+		WithFile("/usr/bin/composer", dag.Container().
+			From(ComposerImage).
+			File("/usr/bin/composer")).
 		WithMountedCache("/root/.composer", dag.CacheVolume(fmt.Sprintf("composer-%s", PhpImage))).
 		WithEnvVariable("COMPOSER_HOME", "/root/.composer").
 		WithEnvVariable("COMPOSER_NO_INTERACTION", "1").
 		WithEnvVariable("COMPOSER_ALLOW_SUPERUSER", "1")
+
+	base = base.WithFile("/usr/bin/install-php-extensions", dag.Container().
+		From("mlocati/php-extension-installer").
+		File("/usr/bin/install-php-extensions")).
+		WithExec([]string{"install-php-extensions", "opentelemetry-stable"}).
+		WithEnvVariable("OTEL_PHP_AUTOLOAD_ENABLED", "true").
+		WithEnvVariable("OTEL_SERVICE_NAME", "dagger-php-sdk")
 
 	/**
 	 * Mounts PHP SDK code and installs it
