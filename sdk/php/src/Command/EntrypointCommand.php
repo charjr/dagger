@@ -96,6 +96,12 @@ class EntrypointCommand extends Command
         OutputInterface $output,
         Dagger\FunctionCall $functionCall,
     ): int {
+
+        $telemetry = new Dagger\Telemetry\Telemetry();
+        $span = $telemetry->getTracer()->spanBuilder('hello-span')->startSpan();
+        $span->addEvent('hello-event', ['result' => 'hello-result']);
+        $span->end();
+
         $errorOutput = $output instanceof ConsoleOutputInterface ?
             $output->getErrorOutput() :
             $output;
