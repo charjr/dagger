@@ -3,6 +3,7 @@
 namespace Dagger\Tests\Unit\Service;
 
 use Dagger\Service\FindsDaggerObjects;
+use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\DaggerObjectWithDaggerFunctions;
 use Dagger\Tests\Unit\Fixture\NoDaggerFunctions;
 use Dagger\ValueObject\DaggerObject;
@@ -32,7 +33,7 @@ class FindsDaggerObjectsTest extends TestCase
             [
                 NoDaggerFunctions::getValueObjectEquivalent(),
                 DaggerObjectWithDaggerFunctions::getValueObjectEquivalent(),
-
+                HandlingEnums::getValueObjectEquivalent(),
             ],
             __DIR__ . '/../Fixture',
         ];
