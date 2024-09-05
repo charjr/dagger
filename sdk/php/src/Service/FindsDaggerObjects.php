@@ -10,6 +10,7 @@ use Roave\BetterReflection\BetterReflection;
 use Roave\BetterReflection\Reflection\ReflectionClass;
 use Roave\BetterReflection\Reflector\DefaultReflector;
 use Roave\BetterReflection\SourceLocator\Type\DirectoriesSourceLocator;
+use RuntimeException;
 
 final class FindsDaggerObjects
 {
@@ -20,6 +21,10 @@ final class FindsDaggerObjects
      */
     public function __invoke(string $dir): array
     {
+        if (!is_dir($dir)) {
+            throw new RuntimeException("'$dir' is not a directory");
+        }
+
         $reflector = new DefaultReflector(new DirectoriesSourceLocator(
             [$dir],
             (new BetterReflection())->astLocator()
