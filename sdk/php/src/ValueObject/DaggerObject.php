@@ -60,4 +60,16 @@ final readonly class DaggerObject
             daggerFunctions: $daggerFunctions
         );
     }
+
+    public function getNormalisedName(): string
+    {
+        $result = explode('\\', $this->name);
+        array_shift($result);
+        return implode('\\', $result);
+    }
+
+    public function isEnum(): bool
+    {
+        return enum_exists($this->name);
+    }
 }
