@@ -7,6 +7,7 @@ namespace Dagger\Tests\Unit\ValueObject;
 use Dagger\Container;
 use Dagger\File;
 use Dagger\Json;
+use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\DaggerObjectWithDaggerFunctions;
 use Dagger\ValueObject\Argument;
 use Dagger\ValueObject\DaggerFunction;
@@ -20,13 +21,25 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use RuntimeException;
 
 #[Group('unit')]
 #[CoversClass(DaggerObject::class)]
 class DaggerObjectTest extends TestCase
 {
-    #[Test, DataProvider('provideReflectionClasses')]
-    public function ItBuildsFromReflectionClass(
+    #[Test]
+    public function itOnlyReflectsDaggerObjects(): void
+    {
+        $reflection = new ReflectionClass(self::class);
+
+        self::expectException(RuntimeException::class);
+
+        DaggerObject::fromReflection($reflection);
+    }
+
+    #[Test]
+    #[DataProvider('provideReflectionClasses')]
+    public function itBuildsFromReflectionClass(
         DaggerObject $expected,
         ReflectionClass $reflectionClass,
     ): void {
@@ -39,13 +52,18 @@ class DaggerObjectTest extends TestCase
     public static function provideReflectionClasses(): Generator
     {
         yield 'DaggerObject without DaggerFunctions' => [
-            new DaggerObject(NoDaggerFunctions::class, []),
+            NoDaggerFunctions::getValueObjectEquivalent(),
             new ReflectionClass(NoDaggerFunctions::class),
         ];
 
         yield 'DaggerObject with DaggerFunctions' => [
             DaggerObjectWithDaggerFunctions::getValueObjectEquivalent(),
             new ReflectionClass(DaggerObjectWithDaggerFunctions::class),
+        ];
+
+        yield 'HandlingEnums' => [
+            HandlingEnums::getValueObjectEquivalent(),
+            new ReflectionClass(HandlingEnums::class),
         ];
     }
 }
