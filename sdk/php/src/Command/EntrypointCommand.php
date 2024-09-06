@@ -214,10 +214,12 @@ class EntrypointCommand extends Command
         if (!isset($this->serialiser)) {
             $this->serialiser = new Serialisation\Serialiser(
                 [
+                    new Serialisation\BackedEnumSubscriber(),
                     new Serialisation\AbstractScalarSubscriber(),
                     new Serialisation\IdableSubscriber(),
                 ],
                 [
+                    new Serialisation\BackedEnumHandler(),
                     new Serialisation\AbstractScalarHandler(),
                     new Serialisation\IdableHandler(dag()),
                 ],
