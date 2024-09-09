@@ -191,15 +191,14 @@ class EntrypointCommand extends Command
         );
 
         $result = [];
-        $decodesValue = new DecodesValue(dag());
+
         foreach ($daggerFunction->arguments as $parameter) {
             $type = $parameter->type;
-
-            foreach ($arguments as $argument) {
-                if ($parameter->name === $argument['Name']) {
-                    $result[$parameter->name] = $decodesValue(
-                        $argument['Value'],
-                        $type
+            foreach ($arguments as ['Name' => $name, 'Value' => $value]) {
+                if ($parameter->name === $name) {
+                    $result[$parameter->name] = $this->getSerialiser()->deserialise(
+                        $value,
+                        $type->name
                     );
                     continue 2;
                 }
