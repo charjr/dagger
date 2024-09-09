@@ -80,11 +80,11 @@ class SerialiserTest extends TestCase
     public static function provideEnums(): Generator
     {
         $cases = [
-            [NetworkProtocol::TCP, '"TCP"'],
-            [StringBackedDummy::Hello, '"hello"'],
+            NetworkProtocol::class => [NetworkProtocol::TCP, '"TCP"'],
+            StringBackedDummy::class => [StringBackedDummy::Hello, '"hello"'],
         ];
 
-        foreach ($cases as [$value, $valueAsJson]) {
+        foreach ($cases as $case => [$value, $valueAsJson]) {
             yield $value::class => [
                 [new BackedEnumSubscriber()],
                 [new BackedEnumHandler()],

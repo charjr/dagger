@@ -40,19 +40,23 @@ final readonly class BackedEnumHandler implements SubscribingHandlerInterface
 
     public function serialise(
         JsonSerializationVisitor $visitor,
-        \BackedEnum $enum,
+        \BackedEnum|null $enum,
         array $type,
         Context $context,
     ): int|string {
-        return $enum->value;
+        return $enum?->value;
     }
 
     public function deserialise(
         JsonDeserializationVisitor $visitor,
-        int|string $enumValue,
+        ?string $enumValue,
         array $type,
         Context $context,
-    ): \BackedEnum {
+    ): \BackedEnum|null {
+        if ($enumValue === null) {
+            return null;
+        }
+
         $className = $type['params'][BackedEnumSubscriber::ORIGINAL_CLASS_NAME] ??
             throw new \RuntimeException(
                 'Cannot find original class name.' .
