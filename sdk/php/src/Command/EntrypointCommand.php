@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dagger\Command;
 
 use Dagger;
-use Dagger\Service\DecodesValue;
 use Dagger\Service\FindsDaggerObjects;
 use Dagger\Service\FindsSrcDirectory;
 use Dagger\Service\Serialisation;
