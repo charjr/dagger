@@ -16,7 +16,7 @@ final readonly class Argument
     public function __construct(
         public string $name,
         public ?string $description,
-        public ListOfType|Type $type,
+        public TypeHint $type,
         public ?Json $default = null,
     ) {
     }

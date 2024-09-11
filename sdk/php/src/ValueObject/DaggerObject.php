@@ -56,4 +56,11 @@ final readonly class DaggerObject
 
         return new self($class->name, $daggerFunctions);
     }
+
+    public function getNormalisedName(): string
+    {
+        $result = explode('\\', $this->name);
+        array_shift($result);
+        return implode('\\', $result);
+    }
 }

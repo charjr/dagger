@@ -15,7 +15,7 @@ final readonly class ListOfType implements TypeHint
     public TypeDefKind $typeDefKind;
 
     public function __construct(
-        public ListOfType|Type $subtype,
+        public TypeHint $subtype,
         public bool $nullable = false,
     ) {
         $this->typeDefKind = TypeDefKind::LIST_KIND;
@@ -67,7 +67,7 @@ final readonly class ListOfType implements TypeHint
 
     private static function getSubtype(
         Attribute\ListOfType $attribute,
-    ): ListOfType|Type {
+    ): TypeHint {
         if (is_string($attribute->type)) {
             return new Type($attribute->type, $attribute->nullable);
         }

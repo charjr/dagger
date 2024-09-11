@@ -41,18 +41,6 @@ final readonly class Type implements TypeHint
         return $this->nullable;
     }
 
-    public static function fromReflection(ReflectionType $type): self
-    {
-        if (!($type instanceof ReflectionNamedType)) {
-            throw new UnsupportedType(sprintf(
-                'Currently the PHP SDK only supports %s',
-                ReflectionNamedType::class,
-            ));
-        }
-
-        return new self($type->getName(), $type->allowsNull());
-    }
-
     public function isIdable(): bool
     {
         if (!class_exists($this->name)) {
@@ -62,6 +50,20 @@ final readonly class Type implements TypeHint
         $class = new ReflectionClass($this->name);
 
         return $class->implementsInterface(IdAble::class);
+    }
+
+    public function getNormalisedName(): string
+    {
+        if (!class_exists($this->name)) {
+            throw new RuntimeException(sprintf(
+                'cannot get normalised class name from type: %s',
+                $this->name,
+            ));
+        }
+
+        $result = explode('\\', $this->name);
+        array_shift($result);
+        return implode('\\', $result);
     }
 
     public function getShortName(): string
@@ -90,6 +92,18 @@ final readonly class Type implements TypeHint
 
         $reflection = new ReflectionEnum($this->getName());
         return array_map(fn($c) => $c->getValue(), $reflection->getCases());
+    }
+
+    public static function fromReflection(ReflectionType $type): self
+    {
+        if (!($type instanceof ReflectionNamedType)) {
+            throw new UnsupportedType(sprintf(
+                'Currently the PHP SDK only supports %s',
+                ReflectionNamedType::class,
+            ));
+        }
+
+        return new self($type->getName(), $type->allowsNull());
     }
 
     private function determineTypeDefKind(string $nameOfType): TypeDefKind

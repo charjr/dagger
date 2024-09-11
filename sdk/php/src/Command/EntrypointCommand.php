@@ -58,22 +58,33 @@ class EntrypointCommand extends Command
         foreach ($daggerObjects as $daggerObject) {
             $objectTypeDef = dag()
                 ->typeDef()
-                ->withObject($this->normalizeClassname($daggerObject->name));
+                ->withObject($daggerObject->getNormalisedName());
 
             foreach ($daggerObject->daggerFunctions as $daggerFunction) {
-                $func = dag()->function(
-                    $daggerFunction->name,
-                    $this->getTypeDef($daggerFunction->returnType)
-                );
+                $returnType = $daggerFunction->returnType;
+                $returnTypeDef = $this->getTypeDef($returnType);
+
+                if ($returnType->typeDefKind === TypeDefKind::ENUM_KIND) {
+                    $daggerModule = $daggerModule->withEnum($returnTypeDef);
+                }
+
+                $func = dag()->function($daggerFunction->name, $returnTypeDef);
 
                 if ($daggerFunction->description !== null) {
                     $func = $func->withDescription($daggerFunction->description);
                 }
 
                 foreach ($daggerFunction->arguments as $argument) {
+                    $typeHint = $argument->type;
+                    $typeDef = $this->getTypeDef($argument->type);
+
+                    if ($typeHint->typeDefKind === TypeDefKind::ENUM_KIND) {
+                        $daggerModule = $daggerModule->withEnum($typeDef);
+                    }
+
                     $func = $func->withArg(
                         $argument->name,
-                        $this->getTypeDef($argument->type),
+                        $typeDef,
                         $argument->description,
                         $argument->default
                     );
@@ -111,7 +122,7 @@ class EntrypointCommand extends Command
 
         $class = $this->getSerialiser()->deserialise(
             (string) $functionCall->parent(),
-            $parentName
+            new Type($parentName)
         );
 
         try {
@@ -136,7 +147,6 @@ class EntrypointCommand extends Command
         return Command::SUCCESS;
     }
 
-
     private function getTypeDef(TypeHint $type): TypeDef
     {
         $typeDef = dag()->typeDef()->withOptional($type->isNullable());
@@ -154,7 +164,7 @@ class EntrypointCommand extends Command
             case TypeDefKind::SCALAR_KIND:
                 return $typeDef->withScalar($type->getShortName());
             case TypeDefKind::ENUM_KIND:
-                $typeDef = $typeDef->withEnum($type->getShortName());
+                $typeDef = $typeDef->withEnum($type->getNormalisedName());
                 foreach ($type->getEnumCases() as $case) {
                     $typeDef = $typeDef->withEnumValue($case->name);
                 }
@@ -162,25 +172,15 @@ class EntrypointCommand extends Command
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot handle custom interfaces: %s',
-                    $type->name
+                    $type->getName(),
                 ));
             case TypeDefKind::OBJECT_KIND:
-                if ($type->isIdable()) {
-                    return $typeDef->withObject($type->getShortName());
-                }
-
-                return $typeDef
-                    ->withObject($this->normalizeClassname($type->name));
+                return $typeDef->withObject($type->isIdable() ?
+                    $type->getShortName() :
+                    $type->getNormalisedName());
             default:
-                throw new RuntimeException("No support exists for $type->name");
+                throw new RuntimeException("No support exists for {$type->getName()}");
         }
-    }
-
-    private function normalizeClassname(string $classname): string
-    {
-        $classname = str_replace('DaggerModule', '', $classname);
-        $classname = ltrim($classname, '\\');
-        return str_replace('\\', ':', $classname);
     }
 
     /**
@@ -245,5 +245,15 @@ class EntrypointCommand extends Command
             $io->error($response->getBody()->getContents());
         }
         $io->error($t->getTraceAsString());
+    }
+
+    private function registerEnum(Type $type, mixed $typeDef, mixed $daggerModule): array
+    {
+        foreach ($type->getEnumCases() as $case) {
+            $typeDef = $typeDef->withEnumValue($case->name);
+        }
+
+        $daggerModule = $daggerModule->withEnum($typeDef);
+        return [$typeDef, $daggerModule];
     }
 }

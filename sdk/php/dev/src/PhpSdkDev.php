@@ -29,7 +29,8 @@ final class PhpSdkDev
     }
 
     #[DaggerFunction('Run linter in source directory')]
-    public function lint(Directory $source): Container {
+    public function lint(Directory $source): Container
+    {
         return $this->base($source)->withExec(['phpcs']);
     }
 
