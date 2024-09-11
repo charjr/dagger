@@ -9,9 +9,8 @@ use Dagger\Exception\UnsupportedType;
 use Dagger\TypeDefKind;
 use ReflectionNamedType;
 use ReflectionType;
-use RuntimeException;
 
-final readonly class ListOfType
+final readonly class ListOfType implements TypeHint
 {
     public TypeDefKind $typeDefKind;
 
@@ -20,6 +19,21 @@ final readonly class ListOfType
         public bool $nullable = false,
     ) {
         $this->typeDefKind = TypeDefKind::LIST_KIND;
+    }
+
+    public function getName(): string
+    {
+        return sprintf('array<%s>', $this->subtype->getName());
+    }
+
+    public function getTypeDefKind(): \Dagger\TypeDefKind
+    {
+        return TypeDefKind::LIST_KIND;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
     }
 
     public static function fromReflection(

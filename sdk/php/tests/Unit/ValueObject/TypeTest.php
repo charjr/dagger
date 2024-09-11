@@ -35,7 +35,7 @@ class TypeTest extends TestCase
     }
 
     #[Test]
-    public function itShouldNotBeConstructedForArrays(): void
+    public function itCannotSupportArray(): void
     {
         self::expectException(\DomainException::class);
 
@@ -54,7 +54,7 @@ class TypeTest extends TestCase
 
     #[Test]
     #[DataProvider('provideReflectionNamedTypes')]
-    public function ItBuildsFromReflectionNamedType(
+    public function itBuildsFromReflectionNamedType(
         Type $expected,
         ReflectionNamedType $reflectionType,
     ): void {
@@ -64,13 +64,15 @@ class TypeTest extends TestCase
     #[Test]
     #[DataProvider('provideIdAbleTypes')]
     #[DataProvider('provideNonIdAbleTypes')]
-    public function itSaysIfItIsIdAble(bool $expected, string $type): void {
+    public function itSaysIfItIsIdAble(bool $expected, string $type): void
+    {
         self::assertSame($expected, (new Type($type))->isIdable());
     }
 
     #[Test]
     #[DataProvider('provideTypeDefKinds')]
-    public function itHasTypeDefKind(Dagger\TypeDefKind $expected, string $type): void {
+    public function itHasTypeDefKind(Dagger\TypeDefKind $expected, string $type): void
+    {
         self::assertEquals($expected, (new Type($type))->typeDefKind);
     }
 

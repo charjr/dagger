@@ -10,11 +10,12 @@ use Dagger\Exception\UnsupportedType;
 use Dagger\TypeDefKind;
 use DomainException;
 use ReflectionClass;
+use ReflectionEnum;
 use ReflectionNamedType;
 use ReflectionType;
 use RuntimeException;
 
-final readonly class Type
+final readonly class Type implements TypeHint
 {
     public TypeDefKind $typeDefKind;
 
@@ -22,7 +23,22 @@ final readonly class Type
         public string $name,
         public bool $nullable = false,
     ) {
-        $this->typeDefKind = $this->getTypeDefKind($name);
+        $this->typeDefKind = $this->determineTypeDefKind($name);
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getTypeDefKind(): TypeDefKind
+    {
+        return $this->typeDefKind;
+    }
+
+    public function isNullable(): bool
+    {
+        return $this->nullable;
     }
 
     public static function fromReflection(ReflectionType $type): self
@@ -62,8 +78,31 @@ final readonly class Type
         return $class->getShortName();
     }
 
-    private function getTypeDefKind(string $nameOfType): TypeDefKind
+    /** @return \UnitEnum[] */
+    public function getEnumCases(): array
     {
+        if (!enum_exists($this->getName())) {
+            throw new RuntimeException(sprintf(
+                '%s is not an enum',
+                $this->getName()
+            ));
+        }
+
+        $reflection = new ReflectionEnum($this->getName());
+        return array_map(fn($c) => $c->getValue(), $reflection->getCases());
+    }
+
+    private function determineTypeDefKind(string $nameOfType): TypeDefKind
+    {
+        if ($nameOfType === 'array') {
+            throw new DomainException(sprintf(
+                '%s should not be constructed for arrays, use %s instead.' .
+                ' If this error occurs, it is a bug.',
+                self::class,
+                ListOfType::class,
+            ));
+        }
+
         switch ($nameOfType) {
             case 'bool':
                 return TypeDefKind::BOOLEAN_KIND;
@@ -74,15 +113,6 @@ final readonly class Type
             case 'null':
             case 'void':
                 return TypeDefKind::VOID_KIND;
-        }
-
-        if ($nameOfType === 'array') {
-            throw new DomainException(sprintf(
-                '%s should not be constructed for arrays, use %s instead.' .
-                ' If this error occurred outside of developing the PHP SDK, it is a bug.',
-                self::class,
-                ListOfType::class,
-            ));
         }
 
         if (class_exists($nameOfType)) {
