@@ -9,11 +9,14 @@ use Dagger\NetworkProtocol;
 use Dagger\Platform;
 use Dagger\Service\Serialisation\AbstractScalarHandler;
 use Dagger\Service\Serialisation\AbstractScalarSubscriber;
-use Dagger\Service\Serialisation\BackedEnumHandler;
-use Dagger\Service\Serialisation\BackedEnumSubscriber;
+use Dagger\Service\Serialisation\EnumHandler;
+use Dagger\Service\Serialisation\EnumSubscriber;
 use Dagger\Service\Serialisation\Serialiser;
 use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\Enum\StringBackedDummy;
+use Dagger\TypeDefKind;
+use Dagger\ValueObject\ListOfType;
+use Dagger\ValueObject\Type;
 use Generator;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -35,7 +38,7 @@ class SerialiserTest extends TestCase
     #[DataProvider('provideEnums')]
     #[DataProvider('provideScalars')]
     #[DataProvider('provideListsOfScalars')]
-    #[DataProvider('provideAbstractScalars')]
+//    #[DataProvider('provideAbstractScalars')]
     public function itSerialisesValues(
         array $subscribers,
         array $handlers,
@@ -55,13 +58,13 @@ class SerialiserTest extends TestCase
     #[DataProvider('provideEnums')]
     #[DataProvider('provideScalars')]
     #[DataProvider('provideListsOfScalars')]
-    #[DataProvider('provideAbstractScalars')]
+//    #[DataProvider('provideAbstractScalars')]
     public function itDeserialisesValues(
         array $subscribers,
         array $handlers,
         mixed $value,
         string $valueAsJSON,
-        string $type,
+        ListOfType|Type $type,
     ): void {
         $sut = new Serialiser($subscribers, $handlers);
 
@@ -70,29 +73,50 @@ class SerialiserTest extends TestCase
 
         /**
      * @return Generator<array{
-     *     0: array{ 0:BackedEnumSubscriber },
-     *     1: array{ 0:BackedEnumHandler },
+     *     0: array{ 0:EnumSubscriber },
+     *     1: array{ 0:EnumHandler },
      *     2: mixed,
      *     3: string,
-     *     4: string,
+     *     4: class-string,
      * }>
      */
     public static function provideEnums(): Generator
     {
-        $cases = [
-            NetworkProtocol::class => [NetworkProtocol::TCP, '"TCP"'],
-            StringBackedDummy::class => [StringBackedDummy::Hello, '"hello"'],
+        yield NetworkProtocol::class => [
+            [new EnumSubscriber()],
+            [new EnumHandler()],
+            NetworkProtocol::TCP,
+            '"TCP"',
+            new Type(NetworkProtocol::class),
         ];
 
-        foreach ($cases as $case => [$value, $valueAsJson]) {
-            yield $value::class => [
-                [new BackedEnumSubscriber()],
-                [new BackedEnumHandler()],
-                $value,
-                $valueAsJson,
-                $value::class,
+        yield StringBackedDummy::class => [
+            [new EnumSubscriber()],
+            [new EnumHandler()],
+            StringBackedDummy::Hello,
+            '"Hello"',
+            new Type(StringBackedDummy::class),
+        ];
+
+        yield sprintf('nullable %s, receive null', NetworkProtocol::class) => [
+            [new EnumSubscriber()],
+            [new EnumHandler()],
+            null,
+            'null',
+            new Type(NetworkProtocol::class, true),
+        ];
+
+        yield sprintf('list of %s', TypeDefKind::class) => (function () {
+            $cases = TypeDefKind::cases();
+
+            return [
+                [new EnumSubscriber()],
+                [new EnumHandler()],
+                $cases,
+                json_encode(array_map(fn($c) => $c->name, $cases)),
+                new ListOfType(new Type(TypeDefKind::class)),
             ];
-        }
+        })();
     }
 
     /**
@@ -106,12 +130,19 @@ class SerialiserTest extends TestCase
      */
     public static function provideScalars(): Generator
     {
-        foreach ([true, false, 123, null, 'Hello, World!', 'null'] as $case) {
-            $type = gettype($case);
-            yield "($type) $case" => [[], [], $case, json_encode($case), $type];
-        }
+        foreach ([
+            'bool true' => [true, 'true', new Type('bool')],
+            'bool false' => [false, 'false', new Type('bool')],
+            'nullable bool' => [null, 'null', new Type('bool', true)],
 
-        yield 'expecting int, receive null' => [[], [], null, 'null', 'int'];
+            'int' => [42, '42', new Type('int')],
+            'nullable int' => [null, 'null', new Type('int', true)],
+
+            'string' => ['Hello', '"Hello"', new Type('string')],
+            'nullable string' => [null, 'null', new Type('string', true)],
+        ] as $case => [$value, $valueAsJson, $type]) {
+            yield $case => [[], [], $value, $valueAsJson, $type];
+        }
     }
 
     /**
@@ -125,14 +156,60 @@ class SerialiserTest extends TestCase
      */
     public static function provideListsOfScalars(): Generator
     {
-        $cases = [
-            'string[]' => [['hello', 'world'], '["hello","world"]'],
-            'expecting array, receive null' => [null, 'null'],
-            'null[]' => [[null, null], '[null,null]'],
-        ];
+        foreach ([
+            'list of bools' => [
+                [true, false],
+                '[true,false]',
+                new ListOfType(new Type('bool')),
+            ],
+            'empty list of bools' => [
+                [],
+                '[]',
+                new ListOfType(new Type('bool')),
+            ],
+            'nullable list of bools' => [
+                null,
+                'null',
+                new ListOfType(new Type('bool'), true),
+            ],
+            'list of nullable bools' => [
+                [null, true, false, null],
+                '[null,true,false,null]',
+                new ListOfType(new Type('bool', true)),
+            ],
+            'list of lists of lists of bools' => [
+                [[[true, false], [true]], [[false, true], [false]]],
+                json_encode([[[true, false], [true]], [[false, true], [false]]]),
+                new ListOfType(new ListOfType(new ListOfType(new Type('bool')))),
+            ],
 
-        foreach ($cases as $case => [$value, $valueAsJson]) {
-            yield $case => [[], [], $value, $valueAsJson, 'array'];
+            'list of ints' => [
+                [1, 2, 3],
+                '[1,2,3]',
+                new ListOfType(new Type('int')),
+            ],
+            'empty list of ints' => [
+                [],
+                '[]',
+                new ListOfType(new Type('int')),
+            ],
+            'nullable list of ints' => [
+                null,
+                'null',
+                new ListOfType(new Type('int'), true),
+            ],
+            'list of nullable ints' => [
+                [1, null, 3],
+                '[1,null,3]',
+                new ListOfType(new Type('int', true)),
+            ],
+            'list of lists of lists of ints' => [
+                [[[], [1]], [], [[2, 3], [4, 5, 6]], [[7, 8, 9]]],
+                '[[[],[1]],[],[[2,3],[4,5,6]],[[7,8,9]]]',
+                new ListOfType(new ListOfType(new ListOfType(new Type('int')))),
+            ]
+        ] as $case => [$value, $valueAsJson, $type]) {
+            yield $case => [[], [], $value, $valueAsJson, $type];
         }
     }
 

@@ -8,9 +8,9 @@ use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
 use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
-final readonly class BackedEnumSubscriber implements EventSubscriberInterface
+final readonly class EnumSubscriber implements EventSubscriberInterface
 {
-    public const ORIGINAL_CLASS_NAME =
+    public const ORIGINAL_CLASS =
         'The original class name before ' .
         'being changed to ' .
         \BackedEnum::class;
@@ -21,7 +21,7 @@ final readonly class BackedEnumSubscriber implements EventSubscriberInterface
             [
                 'event' => 'serializer.pre_serialize',
                 'method' => 'onPreSerialize',
-                'interface' => \BackedEnum::class,
+                'interface' => \UnitEnum::class,
             ],
             [
                 'event' => 'serializer.pre_deserialize',
@@ -32,8 +32,8 @@ final readonly class BackedEnumSubscriber implements EventSubscriberInterface
 
     public function onPreSerialize(PreSerializeEvent $event): void
     {
-        if ($event->getObject() instanceof \BackedEnum) {
-            $event->setType(\BackedEnum::class);
+        if ($event->getObject() instanceof \UnitEnum) {
+            $event->setType(\UnitEnum::class);
         }
     }
 
@@ -45,9 +45,9 @@ final readonly class BackedEnumSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setType(\BackedEnum::class, array_merge_recursive(
+        $event->setType(\UnitEnum::class, array_merge_recursive(
             $event->getType()['params'],
-            [self::ORIGINAL_CLASS_NAME => $className]
+            [self::ORIGINAL_CLASS => $className]
         ));
     }
 }
