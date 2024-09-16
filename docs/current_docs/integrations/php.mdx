@@ -50,6 +50,24 @@ Update the generated `dagger/main.go` file with the following code:
 ```
 
 </TabItem>
+<TabItem value="PHP">
+:::note
+The PHP SDK is experimental and under active development, so documentation is currently sparse.
+Interested early adopters can learn more by [reviewing the README generated with every module](https://github.com/dagger/dagger/tree/main/sdk/php/runtime/template/README.md) or visiting our [PHP channel](https://discord.com/channels/707636530424053791/1162025276872609832).
+:::
+
+Bootstrap a new module:
+
+```shell
+dagger init --name=my-module --sdk=php --source=./dagger
+```
+
+Update the generated `dagger/src/MyModule.php` file with the following code:
+
+```php file=./snippets/php/php/MyModule.php
+```
+
+</TabItem>
 <TabItem value="Python">
 
 Bootstrap a new module:
@@ -98,10 +116,6 @@ dagger call publish \
   --registry-password=env:REGISTRY_PASSWORD \
   --image-name=my-php-app
 ```
-
-:::note
-If you prefer to write your Dagger module in PHP instead of the above languages, an experimental PHP SDK is also available for PHP developers. This SDK is currently under development and therefore not yet documented. Interested early adopters can learn more by [reviewing the source code](https://github.com/dagger/dagger/tree/main/sdk/php) or visiting our [PHP channel](https://discord.com/channels/707636530424053791/1162025276872609832).
-:::
 
 ## Resources
 
