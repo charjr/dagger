@@ -63,4 +63,9 @@ final readonly class DaggerObject
         array_shift($result);
         return implode('\\', $result);
     }
+
+    public function isEnum(): bool
+    {
+        return enum_exists($this->name);
+    }
 }

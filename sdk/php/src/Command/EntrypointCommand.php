@@ -38,9 +38,9 @@ class EntrypointCommand extends Command
         $functionCall = dag()->currentFunctionCall();
 
         try {
-                return $functionCall->parentName() === '' ?
-                    $this->registerModule($functionCall) :
-                    $this->callFunctionOnParent($output, $functionCall);
+            return $functionCall->parentName() === '' ?
+                $this->registerModule($functionCall) :
+                $this->callFunctionOnParent($output, $functionCall);
         } catch (\Throwable $t) {
             $this->outputErrorInformation($input, $output, $t);
 
@@ -56,6 +56,19 @@ class EntrypointCommand extends Command
         $daggerObjects = (new FindsDaggerObjects())($src);
 
         foreach ($daggerObjects as $daggerObject) {
+            if ($daggerObject->isEnum()) {
+                $enumTypeDef = dag()
+                    ->typeDef()
+                    ->withEnum($daggerObject->getNormalisedName());
+
+                foreach ($daggerObject->name::cases() as $case) {
+                    $enumTypeDef->withEnumValue($case->name);
+                }
+
+                $daggerModule = $daggerModule->withEnum($enumTypeDef);
+                continue;
+            }
+
             $objectTypeDef = dag()
                 ->typeDef()
                 ->withObject($daggerObject->getNormalisedName());
@@ -64,10 +77,6 @@ class EntrypointCommand extends Command
                 $returnType = $daggerFunction->returnType;
                 $returnTypeDef = $this->getTypeDef($returnType);
 
-                if ($returnType->typeDefKind === TypeDefKind::ENUM_KIND) {
-                    $daggerModule = $daggerModule->withEnum($returnTypeDef);
-                }
-
                 $func = dag()->function($daggerFunction->name, $returnTypeDef);
 
                 if ($daggerFunction->description !== null) {
@@ -75,12 +84,7 @@ class EntrypointCommand extends Command
                 }
 
                 foreach ($daggerFunction->arguments as $argument) {
-                    $typeHint = $argument->type;
                     $typeDef = $this->getTypeDef($argument->type);
-
-                    if ($typeHint->typeDefKind === TypeDefKind::ENUM_KIND) {
-                        $daggerModule = $daggerModule->withEnum($typeDef);
-                    }
 
                     $func = $func->withArg(
                         $argument->name,
@@ -164,11 +168,7 @@ class EntrypointCommand extends Command
             case TypeDefKind::SCALAR_KIND:
                 return $typeDef->withScalar($type->getShortName());
             case TypeDefKind::ENUM_KIND:
-                $typeDef = $typeDef->withEnum($type->getNormalisedName());
-                foreach ($type->getEnumCases() as $case) {
-                    $typeDef = $typeDef->withEnumValue($case->name);
-                }
-                return $typeDef;
+                return $typeDef->withEnum($type->getNormalisedName());
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot handle custom interfaces: %s',
