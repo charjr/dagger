@@ -31,13 +31,6 @@ final readonly class DaggerObject
         );
     }
 
-    /**
-     * @throws \RuntimeException
-     * - if missing DaggerObject Attribute
-     * - if any DaggerFunction parameter type is unsupported
-     * - if any DaggerFunction return type is unsupported
-     * @param ReflectionClass<object> $class
-     */
     public static function fromReflection(ReflectionClass $class): self
     {
         if (empty($class->getAttributes(Attribute\DaggerObject::class))) {
@@ -62,10 +55,5 @@ final readonly class DaggerObject
         $result = explode('\\', $this->name);
         array_shift($result);
         return implode('\\', $result);
-    }
-
-    public function isEnum(): bool
-    {
-        return enum_exists($this->name);
     }
 }

@@ -16,7 +16,7 @@ final class FindsDaggerObjects
     /**
      * Finds all classes with the DaggerObject attribute.
      * Only looks within the given directory.
-     * @return ValueObject\DaggerObject[]
+     * @return array<ValueObject\DaggerObject|ValueObject\DaggerEnum>
      */
     public function __invoke(string $dir): array
     {
@@ -30,12 +30,15 @@ final class FindsDaggerObjects
             fn($class) => $this->isDaggerObject($class)
         );
 
-        return array_values(array_map(
-            fn($d) => ValueObject\DaggerObject::fromReflection(
-                new \ReflectionClass($d->getName())
-            ),
-            $daggerObjects
-        ));
+        return array_values(array_map(function ($className) {
+            return enum_exists($className) ?
+                ValueObject\DaggerEnum::fromReflection(new \ReflectionEnum(
+                    $className
+                )) :
+                ValueObject\DaggerObject::fromReflection(new \ReflectionClass(
+                    $className
+                ));
+        }, array_map(fn($do) => $do->getName(), $daggerObjects)));
     }
 
     private function isDaggerObject(ReflectionClass $class): bool

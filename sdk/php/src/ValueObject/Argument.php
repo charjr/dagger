@@ -6,7 +6,9 @@ namespace Dagger\ValueObject;
 
 use Dagger\Attribute;
 use Dagger\Client\IdAble;
+use Dagger\Exception\UnsupportedType;
 use Dagger\Json;
+use ReflectionNamedType;
 use ReflectionParameter;
 use Roave\BetterReflection\Reflection\ReflectionParameter as BetterReflectionParameter;
 use RuntimeException;
@@ -23,28 +25,54 @@ final readonly class Argument
 
     public static function fromReflection(ReflectionParameter $parameter): self
     {
+        $argument = (current($parameter
+            ->getAttributes(Attribute\Argument::class)) ?: null)
+            ?->newInstance();
+
+        return new self(
+            $parameter->name,
+            $argument?->description,
+            self::getType($parameter),
+            self::getDefault($parameter),
+        );
+    }
+
+    private static function getType(ReflectionParameter $parameter): TypeHint
+    {
         $type = $parameter->getType() ??
             throw new RuntimeException(sprintf(
                 'Argument "%s" cannot be supported without a typehint',
                 $parameter->name,
             ));
 
-        $argument = (current($parameter
-            ->getAttributes(Attribute\Argument::class)) ?: null)
-            ?->newInstance();
+        if (!$type instanceof ReflectionNamedType) {
+            throw new UnsupportedType(sprintf(
+                'Argument %s with unsupported type, ' .
+                ' intersection and union types are not supported',
+                $parameter->name,
+            ));
+        }
 
-        $listOfType = (current($parameter
-            ->getAttributes(Attribute\ListOfType::class)) ?: null)
-            ?->newInstance();
+        $name = $type->getName();
 
-        return new self(
-            $parameter->name,
-            $argument?->description,
-            $listOfType?->type === null ?
-                Type::fromReflection($type) :
-                ListOfType::fromReflection($type, $listOfType),
-            self::getDefault($parameter),
-        );
+        if (enum_exists($name)) {
+            return EnumType::fromReflection($type);
+        }
+
+        if ($name === 'array') {
+            $attribute = (current($parameter
+                ->getAttributes(Attribute\ReturnsListOfType::class)) ?: null)
+                ?->newInstance() ??
+                throw new RuntimeException(sprintf(
+                    '%s requires a %s attribute because it returns an array',
+                    $parameter->name,
+                    Attribute\ReturnsListOfType::class,
+                ));
+
+            return ListOfType::fromReflection($type, $attribute);
+        }
+
+        return Type::fromReflection($type);
     }
 
     private static function getDefault(ReflectionParameter $parameter): ?Json

@@ -11,6 +11,7 @@ use Dagger\Service\Serialisation;
 use Dagger\TypeDef;
 use Dagger\TypeDefKind;
 use Dagger\ValueObject\DaggerFunction;
+use Dagger\ValueObject\EnumType;
 use Dagger\ValueObject\ListOfType;
 use Dagger\ValueObject\Type;
 use Dagger\ValueObject\TypeHint;
@@ -30,6 +31,7 @@ use function Dagger\dag;
 class EntrypointCommand extends Command
 {
     private Serialisation\Serialiser $serialiser;
+    private Dagger\Service\RemovesNamespacePrefix $removesNamespacePrefix;
 
     protected function execute(
         InputInterface $input,
@@ -55,14 +57,15 @@ class EntrypointCommand extends Command
         $src = (new FindsSrcDirectory())();
         $daggerObjects = (new FindsDaggerObjects())($src);
 
+        $removesNamespacePrefix = new Dagger\Service\RemovesNamespacePrefix();
         foreach ($daggerObjects as $daggerObject) {
-            if ($daggerObject->isEnum()) {
+            if ($daggerObject instanceof Dagger\ValueObject\DaggerEnum) {
                 $enumTypeDef = dag()
                     ->typeDef()
-                    ->withEnum($daggerObject->getNormalisedName());
+                    ->withEnum($removesNamespacePrefix($daggerObject->name));
 
-                foreach ($daggerObject->name::cases() as $case) {
-                    $enumTypeDef->withEnumValue($case->name);
+                foreach ($daggerObject->cases as $case) {
+                    $enumTypeDef->withEnumValue($case);
                 }
 
                 $daggerModule = $daggerModule->withEnum($enumTypeDef);
@@ -71,7 +74,7 @@ class EntrypointCommand extends Command
 
             $objectTypeDef = dag()
                 ->typeDef()
-                ->withObject($daggerObject->getNormalisedName());
+                ->withObject($removesNamespacePrefix($daggerObject->name));
 
             foreach ($daggerObject->daggerFunctions as $daggerFunction) {
                 $returnType = $daggerFunction->returnType;
@@ -159,6 +162,10 @@ class EntrypointCommand extends Command
             return $typeDef->withListOf($this->getTypeDef($type->subtype));
         }
 
+        if ($type instanceof EnumType) {
+            return $typeDef->withEnum($type->getShortName());
+        }
+
         switch ($type->getTypeDefKind()) {
             case TypeDefKind::BOOLEAN_KIND:
             case TypeDefKind::INTEGER_KIND:
@@ -167,8 +174,6 @@ class EntrypointCommand extends Command
                 return $typeDef->withKind($type->getTypeDefKind());
             case TypeDefKind::SCALAR_KIND:
                 return $typeDef->withScalar($type->getShortName());
-            case TypeDefKind::ENUM_KIND:
-                return $typeDef->withEnum($type->getNormalisedName());
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot handle custom interfaces: %s',
@@ -245,15 +250,5 @@ class EntrypointCommand extends Command
             $io->error($response->getBody()->getContents());
         }
         $io->error($t->getTraceAsString());
-    }
-
-    private function registerEnum(Type $type, mixed $typeDef, mixed $daggerModule): array
-    {
-        foreach ($type->getEnumCases() as $case) {
-            $typeDef = $typeDef->withEnumValue($case->name);
-        }
-
-        $daggerModule = $daggerModule->withEnum($typeDef);
-        return [$typeDef, $daggerModule];
     }
 }

@@ -15,7 +15,7 @@ final readonly class DaggerFunction
         public string $name,
         public ?string $description,
         public array $arguments,
-        public ListOfType|Type $returnType,
+        public TypeHint $returnType,
     ) {
     }
 
@@ -47,24 +47,32 @@ final readonly class DaggerFunction
 
     private static function getReturnType(
         ReflectionMethod $method
-    ): ListOfType|Type {
+    ): TypeHint {
         $type = $method->getReturnType() ??
             throw new RuntimeException(sprintf(
                 'DaggerFunction "%s" cannot be supported without a return type',
                 $method->name,
             ));
 
-        $attribute = (current($method
-            ->getAttributes(Attribute\ReturnsListOfType::class)) ?: null)
-            ?->newInstance();
+        $name = $type->getName();
 
-        if (!isset($attribute)) {
-            return Type::fromReflection($type);
+        if (enum_exists($name)) {
+            return EnumType::fromReflection($type);
         }
 
-        return ListOfType::fromReflection(
-            $type,
-            $attribute,
-        );
+        if ($name === 'array') {
+            $attribute = (current($method
+                ->getAttributes(Attribute\ReturnsListOfType::class)) ?: null)
+                ?->newInstance() ??
+                throw new RuntimeException(sprintf(
+                    '%s requires a %s attribute because it returns an array',
+                    $method->name,
+                    Attribute\ReturnsListOfType::class,
+                ));
+
+            return ListOfType::fromReflection($type, $attribute);
+        }
+
+        return Type::fromReflection($type);
     }
 }
