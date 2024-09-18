@@ -101,7 +101,7 @@ class DaggerFunctionTest extends TestCase
             new DaggerFunction(
                 'requiredString',
                 null,
-                [new Argument('value', null, new Type('string'))],
+                [new Argument('value', '', new Type('string'))],
                 new Type('void'),
             ),
             new ReflectionMethod(
@@ -133,7 +133,7 @@ class DaggerFunctionTest extends TestCase
                 null,
                 [new Argument(
                     'value',
-                    null,
+                    '',
                     new Type(Container::class, true),
                     new Json('null'),
                 )],
@@ -151,7 +151,7 @@ class DaggerFunctionTest extends TestCase
                 null,
                 [new Argument(
                     'value',
-                    null,
+                    '',
                     new Type(File::class, true),
                     new Json('null'),
                 )],

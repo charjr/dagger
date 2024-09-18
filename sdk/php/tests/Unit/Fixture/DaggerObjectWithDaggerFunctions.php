@@ -101,10 +101,13 @@ final class DaggerObjectWithDaggerFunctions
 
     public static function getValueObjectEquivalent(): ValueObject\DaggerObject
     {
-        return new ValueObject\DaggerObject(DaggerObjectWithDaggerFunctions::class, [
+        return new ValueObject\DaggerObject(
+            DaggerObjectWithDaggerFunctions::class,
+            '',
+            [
                 new ValueObject\DaggerFunction(
                     'returnBool',
-                    null,
+                    '',
                     [],
                     new ValueObject\Type('bool')
                 ),
@@ -116,7 +119,7 @@ final class DaggerObjectWithDaggerFunctions
                 ),
                 new ValueObject\DaggerFunction(
                     'returnString',
-                    null,
+                    '',
                     [],
                     new ValueObject\Type('string')
                 ),
@@ -126,7 +129,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('bool'),
                             null,
                         )
@@ -139,7 +142,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('int'),
                             null,
                         )
@@ -152,7 +155,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('string'),
                             null,
                         )
@@ -165,7 +168,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('string', true),
                             new Json('null'),
                         )
@@ -178,7 +181,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('string', true),
                             new Json('null'),
                         )
@@ -191,7 +194,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type('string', true),
                             new Json('"test"'),
                         )
@@ -217,13 +220,13 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'first',
-                            null,
+                            '',
                             new ValueObject\Type('string'),
                             null,
                         ),
                         new ValueObject\Argument(
                             'second',
-                            null,
+                            '',
                             new ValueObject\Type('string'),
                             null,
                         ),
@@ -236,13 +239,13 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'first',
-                            null,
+                            '',
                             new ValueObject\Type('string'),
                             new Json('"first"'),
                         ),
                         new ValueObject\Argument(
                             'second',
-                            null,
+                            '',
                             new ValueObject\Type('string'),
                             new Json('"second"'),
                         )
@@ -255,7 +258,7 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type(Container::class, true),
                             new Json('null'),
                         ),
@@ -268,13 +271,14 @@ final class DaggerObjectWithDaggerFunctions
                     [
                         new ValueObject\Argument(
                             'value',
-                            null,
+                            '',
                             new ValueObject\Type(File::class, true),
                             new Json('null'),
                         ),
                     ],
                     new ValueObject\Type('void'),
                 ),
-        ]);
+            ]
+        );
     }
 }
