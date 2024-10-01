@@ -5,6 +5,7 @@ namespace Dagger\Tests\Unit\Service;
 use Dagger\Service\FindsDaggerObjects;
 use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\DaggerObjectWithDaggerFunctions;
+use Dagger\Tests\Unit\Fixture\Enum\StringBackedDummy;
 use Dagger\Tests\Unit\Fixture\NoDaggerFunctions;
 use Dagger\ValueObject\DaggerObject;
 use Generator;
@@ -35,6 +36,7 @@ class FindsDaggerObjectsTest extends TestCase
                 NoDaggerFunctions::getValueObjectEquivalent(),
                 DaggerObjectWithDaggerFunctions::getValueObjectEquivalent(),
                 HandlingEnums::getValueObjectEquivalent(),
+                StringBackedDummy::getValueObjectEquivalent(),
             ],
             __DIR__ . '/../Fixture',
         ];

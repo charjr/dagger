@@ -19,6 +19,7 @@ use Dagger\Service\Serialisation\IdableSubscriber;
 use Dagger\Service\Serialisation\Serialiser;
 use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\Enum\StringBackedDummy;
+use Dagger\ValueObject\Type;
 use Generator;
 use JMS\Serializer\EventDispatcher\EventSubscriberInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -60,7 +61,7 @@ class SerialiserTest extends TestCase
             [new IdableHandler(dag())]
         );
 
-        $actual = $sut->deserialise($encodedId, $type);
+        $actual = $sut->deserialise($encodedId, new Type($type));
 
         self::assertInstanceOf($type, $actual, "did not deserialise to $type");
         self::assertEquals($idable->id(), $actual->id(), 'id does not match');
