@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace Dagger\Tests\Unit\ValueObject;
 
-use Dagger\Container;
-use Dagger\File;
-use Dagger\Json;
-use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\DaggerObjectWithDaggerFunctions;
-use Dagger\ValueObject\Argument;
-use Dagger\ValueObject\DaggerFunction;
-use Dagger\ValueObject\DaggerObject;
-use Dagger\ValueObject\Type;
+use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
+use Dagger\ValueObject\DaggerClass;
 use Dagger\Tests\Unit\Fixture\NoDaggerFunctions;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -24,8 +18,8 @@ use ReflectionClass;
 use RuntimeException;
 
 #[Group('unit')]
-#[CoversClass(DaggerObject::class)]
-class DaggerObjectTest extends TestCase
+#[CoversClass(DaggerClass::class)]
+class DaggerClassTest extends TestCase
 {
     #[Test]
     public function itOnlyReflectsDaggerObjects(): void
@@ -34,29 +28,29 @@ class DaggerObjectTest extends TestCase
 
         self::expectException(RuntimeException::class);
 
-        DaggerObject::fromReflection($reflection);
+        DaggerClass::fromReflection($reflection);
     }
 
     #[Test]
     #[DataProvider('provideReflectionClasses')]
     public function itBuildsFromReflectionClass(
-        DaggerObject $expected,
+        DaggerClass $expected,
         ReflectionClass $reflectionClass,
     ): void {
-        $actual = DaggerObject::fromReflection($reflectionClass);
+        $actual = DaggerClass::fromReflection($reflectionClass);
 
         self::assertEquals($expected, $actual);
     }
 
-    /** @return Generator<array{ 0: DaggerObject, 1:ReflectionClass}> */
+    /** @return Generator<array{ 0: DaggerClass, 1:ReflectionClass}> */
     public static function provideReflectionClasses(): Generator
     {
-        yield 'DaggerObject without DaggerFunctions' => [
+        yield 'DaggerClass without DaggerFunctions' => [
             NoDaggerFunctions::getValueObjectEquivalent(),
             new ReflectionClass(NoDaggerFunctions::class),
         ];
 
-        yield 'DaggerObject with DaggerFunctions' => [
+        yield 'DaggerClass with DaggerFunctions' => [
             DaggerObjectWithDaggerFunctions::getValueObjectEquivalent(),
             new ReflectionClass(DaggerObjectWithDaggerFunctions::class),
         ];

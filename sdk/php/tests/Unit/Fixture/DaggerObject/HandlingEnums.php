@@ -44,7 +44,7 @@ final class HandlingEnums
 
     public static function getValueObjectEquivalent(): ValueObject\DaggerObject
     {
-        return new ValueObject\DaggerObject(HandlingEnums::class, '', [
+        return new ValueObject\DaggerClass(HandlingEnums::class, '', [
             new ValueObject\DaggerFunction(
                 'requiredNetworkProtocol',
                 'Test handling of built-in enums',
@@ -92,7 +92,7 @@ final class HandlingEnums
                         'arg',
                         '',
                         new ValueObject\Type(StringBackedDummy::class, false),
-                        new Json('"hello"'),
+                        new Json('"hello, "'),
                     ),
                 ],
                 new ValueObject\Type(StringBackedDummy::class),

@@ -56,13 +56,16 @@ class EntrypointCommand extends Command
         $daggerObjects = (new FindsDaggerObjects())($src);
 
         foreach ($daggerObjects as $daggerObject) {
-            if ($daggerObject->isEnum()) {
+            if ($daggerObject instanceof Dagger\ValueObject\DaggerEnum) {
                 $enumTypeDef = dag()
                     ->typeDef()
-                    ->withEnum($daggerObject->getNormalisedName());
+                    ->withEnum(
+                        $daggerObject->getNormalisedName(),
+                        $daggerObject->getDescription(),
+                    );
 
-                foreach ($daggerObject->name::cases() as $case) {
-                    $enumTypeDef->withEnumValue($case->name);
+                foreach ($daggerObject->getCases() as $case => $description) {
+                    $enumTypeDef->withEnumValue($case, $description);
                 }
 
                 $daggerModule = $daggerModule->withEnum($enumTypeDef);
@@ -84,8 +87,6 @@ class EntrypointCommand extends Command
                 }
 
                 foreach ($daggerFunction->arguments as $argument) {
-                    $typeDef = $this->getTypeDef($argument->type);
-
                     $func = $func->withArg(
                         name: $argument->name,
                         typeDef: $this

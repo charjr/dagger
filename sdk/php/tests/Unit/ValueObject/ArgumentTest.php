@@ -208,7 +208,7 @@ class ArgumentTest extends TestCase
                 'arg',
                 '',
                 new Type(StringBackedDummy::class, false),
-                new Json('"hello"'),
+                new Json('"hello, "'),
             ),
             self::getReflectionParameter(
                 HandlingEnums::class,

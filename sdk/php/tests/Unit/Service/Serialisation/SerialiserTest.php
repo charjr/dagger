@@ -2,7 +2,6 @@
 
 namespace Dagger\Tests\Unit\Service\Serialisation;
 
-use Dagger\Client;
 use Dagger\ContainerId;
 use Dagger\Json;
 use Dagger\NetworkProtocol;
@@ -12,7 +11,6 @@ use Dagger\Service\Serialisation\AbstractScalarSubscriber;
 use Dagger\Service\Serialisation\EnumHandler;
 use Dagger\Service\Serialisation\EnumSubscriber;
 use Dagger\Service\Serialisation\Serialiser;
-use Dagger\Tests\Unit\Fixture\DaggerObject\HandlingEnums;
 use Dagger\Tests\Unit\Fixture\Enum\StringBackedDummy;
 use Dagger\TypeDefKind;
 use Dagger\ValueObject\ListOfType;
