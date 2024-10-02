@@ -10,6 +10,7 @@ use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\JsonSerializationVisitor;
+use RuntimeException;
 
 final readonly class AbstractScalarHandler implements SubscribingHandlerInterface
 {
@@ -58,6 +59,11 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
             AbstractScalarSubscriber::ORIGINAL_CLASS_NAME
         ];
 
-        return new $originalClassName($abstractScalar);
+        $value = json_decode($abstractScalar);
+        if (!is_string($value)) {
+            throw new RuntimeException('abstract scalar should be passed as a string');
+        }
+
+        return new $originalClassName($value);
     }
 }
