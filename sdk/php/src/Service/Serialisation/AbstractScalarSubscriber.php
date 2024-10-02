@@ -18,20 +18,14 @@ final readonly class AbstractScalarSubscriber implements EventSubscriberInterfac
 
     public static function getSubscribedEvents(): array
     {
-        return [
-            [
-                'event' => 'serializer.pre_serialize',
-                'method' => 'onPreSerialize',
-                'format' => 'json',
-                'priority' => 0,
-            ],
-            [
-                'event' => 'serializer.pre_deserialize',
-                'method' => 'onPreDeserialize',
-                'format' => 'json',
-                'priority' => 0,
-            ],
-        ];
+        return [[
+            'event' => 'serializer.pre_serialize',
+            'method' => 'onPreSerialize',
+            'interface' => AbstractScalar::class,
+        ], [
+            'event' => 'serializer.pre_deserialize',
+            'method' => 'onPreDeserialize',
+        ]];
     }
 
     public function onPreSerialize(PreSerializeEvent $event): void
@@ -47,7 +41,7 @@ final readonly class AbstractScalarSubscriber implements EventSubscriberInterfac
 
         if (
             !class_exists($className)
-            || !in_array(AbstractScalar::class, class_parents($className))
+            || !in_array(AbstractScalar::class, class_implements($className))
         ) {
             return;
         }
