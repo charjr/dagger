@@ -65,7 +65,8 @@ class EntrypointCommand extends Command
                     );
 
                 foreach ($daggerObject->getCases() as $case => $description) {
-                    $enumTypeDef->withEnumValue($case, $description);
+                    $enumTypeDef = $enumTypeDef
+                        ->withEnumValue($case, $description);
                 }
 
                 $daggerModule = $daggerModule->withEnum($enumTypeDef);
