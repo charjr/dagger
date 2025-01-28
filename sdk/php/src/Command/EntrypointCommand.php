@@ -114,7 +114,7 @@ class EntrypointCommand extends Command
         $args = $this->formatArguments(
             $parentName,
             $functionName,
-            json_decode(json_encode($functionCall->inputArgs()), true)
+            $functionCall->inputArgs(),
         );
 
         try {
@@ -190,7 +190,7 @@ class EntrypointCommand extends Command
     }
 
     /**
-     * @param array<array{Name:string,Value:string}> $arguments
+     * @param array<object{Name:string, Value:string}> $arguments
      *
      * @return array<string,mixed>
      */
@@ -213,9 +213,9 @@ class EntrypointCommand extends Command
             $type = $parameter->type;
 
             foreach ($arguments as $argument) {
-                if ($parameter->name === $argument['Name']) {
+                if ($parameter->name === $argument->Name) {
                     $result[$parameter->name] = $decodesValue(
-                        $argument['Value'],
+                        $argument->Value,
                         $type
                     );
                     continue 2;
