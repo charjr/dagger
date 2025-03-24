@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Dagger\Command;
 
 use Dagger;
-use Dagger\Service\DecodesValue;
 use Dagger\Service\FindsDaggerObjects;
 use Dagger\Service\FindsSrcDirectory;
 use Dagger\Service\NormalizesClassName;
@@ -121,7 +120,7 @@ class EntrypointCommand extends Command
             if ($functionName !== '') {
                 $class = $this->getSerialiser()->deserialise(
                     (string) $functionCall->parent(),
-                    $parentName
+                    new Type($parentName),
                 );
                 $result = ($class)->$functionName(...$args);
             } else {
@@ -208,16 +207,14 @@ class EntrypointCommand extends Command
         );
 
         $result = [];
-        $decodesValue = new DecodesValue(dag());
         foreach ($daggerFunction->arguments as $parameter) {
             $type = $parameter->type;
 
             foreach ($arguments as $argument) {
                 if ($parameter->name === $argument['Name']) {
-                    $result[$parameter->name] = $decodesValue(
-                        $argument['Value'],
-                        $type
-                    );
+                    $result[$parameter->name] = $this
+                        ->getSerialiser()
+                        ->deserialise($argument['Value'], $type);
                     continue 2;
                 }
             }

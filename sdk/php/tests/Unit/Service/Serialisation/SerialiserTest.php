@@ -9,6 +9,8 @@ use Dagger\Platform;
 use Dagger\Service\Serialisation\AbstractScalarHandler;
 use Dagger\Service\Serialisation\AbstractScalarSubscriber;
 use Dagger\Service\Serialisation\Serialiser;
+use Dagger\ValueObject\ListOfType;
+use Dagger\ValueObject\Type;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,7 +33,7 @@ class SerialiserTest extends TestCase
     {
         $sut = new Serialiser();
 
-        self::assertEquals($value, $sut->deserialise($valueAsJSON, gettype($value)));
+        self::assertEquals($value, $sut->deserialise($valueAsJSON, new Type(gettype($value))));
     }
 
     #[Test, DataProvider('provideLists')]
@@ -41,11 +43,11 @@ class SerialiserTest extends TestCase
     }
 
     #[Test, DataProvider('provideLists')]
-    public function itDeserialisesLists(?array $value, string $valueAsJSON): void
+    public function itDeserialisesLists(?array $value, string $valueAsJSON, ListOfType $type): void
     {
         $sut = new Serialiser();
 
-        self::assertEquals($value, $sut->deserialise($valueAsJSON, 'array'));
+        self::assertEquals($value, $sut->deserialise($valueAsJSON, $type));
     }
 
     #[Test, DataProvider('provideAbstractScalars')]
@@ -71,7 +73,7 @@ class SerialiserTest extends TestCase
             [new AbstractScalarHandler()]
         );
 
-        self::assertEquals($value, $sut->deserialise($valueAsJSON, $value::class));
+        self::assertEquals($value, $sut->deserialise($valueAsJSON, new Type($value::class)));
     }
 
     /** @return Generator<array{ 0: mixed, 1: string }> */
@@ -92,14 +94,14 @@ class SerialiserTest extends TestCase
         }
     }
 
-    /** @return Generator<array{ 0: ?array, 1: string }> */
+    /** @return Generator<array{ 0: ?array, 1: string, 2: ListOfType }> */
     public static function provideLists(): Generator
     {
-        yield 'string[]' => [['hello', 'world'], '["hello","world"]'];
+        yield 'string[]' => [['hello', 'world'], '["hello","world"]', new ListOfType(new Type('string'))];
 
-        yield 'null' => [null, 'null'];
+        yield 'null' => [null, 'null', new ListOfType(new Type('string'), true)];
 
-        yield ' null[]' => [[null, null], '[null,null]'];
+        yield ' null[]' => [[null, null], '[null,null]', new ListOfType(new Type('string', true))];
     }
 
     /**

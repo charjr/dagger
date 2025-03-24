@@ -50,12 +50,14 @@ final readonly class Type
 
     private function getTypeDefKind(string $nameOfType): TypeDefKind
     {
-        switch ($nameOfType) {
+        switch (strtolower($nameOfType)) {
             case 'bool':
+            case 'boolean':
                 return TypeDefKind::BOOLEAN_KIND;
             case 'float':
                 return TypeDefKind::FLOAT_KIND;
             case 'int':
+            case 'integer':
                 return TypeDefKind::INTEGER_KIND;
             case 'string':
                 return TypeDefKind::STRING_KIND;

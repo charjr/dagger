@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Dagger\Service\Serialisation;
 
+use Dagger\TypeDefKind;
+use Dagger\ValueObject\ListOfType;
+use Dagger\ValueObject\Type;
 use JMS\Serializer\EventDispatcher\EventDispatcher;
-use JMS\Serializer\EventDispatcher\PreDeserializeEvent;
-use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 use JMS\Serializer\Handler\HandlerRegistry;
-use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
@@ -51,16 +51,36 @@ final readonly class Serialiser
         );
     }
 
-    public function deserialise(string $value, string $type): mixed
+    public function deserialise(string $value, ListOfType|Type $type): mixed
     {
-        if ($value === 'null') {
-            return null;
+        if (in_array($value, ['', 'null'], true)) {
+            return $type->nullable || $type->typeDefKind === TypeDefKind::VOID_KIND ?
+                null :
+                throw new \RuntimeException('null given for non-nullable type');
         }
 
-        return $this->serializer->deserialize(
-            $value,
-            $type,
-            'json',
+        if ($type instanceof ListOfType) {
+            return $this->deserialiseListOfType($value, $type);
+        }
+
+        return $this->serializer->deserialize($value, $type->name, 'json');
+    }
+
+    /** @return array<scalar> */
+    private function deserialiseListOfType(string $value, ListOfType $list): array
+    {
+        if (preg_match('#^\[.*]$#', $value) !== 1) {
+            throw new \RuntimeException(sprintf(
+                '"%s" has unbalanced square brackets',
+                $value,
+            ));
+        }
+
+        $valueWithoutOuterBrackets = substr($value, 1, strlen($value) - 2);
+
+        return array_map(
+            fn($v) => $this->deserialise($v, $list->subtype),
+            explode(',', $valueWithoutOuterBrackets),
         );
     }
 }
