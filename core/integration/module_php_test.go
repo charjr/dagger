@@ -225,6 +225,18 @@ func (PHPSuite) TestObjectKind(ctx context.Context, t *testctx.T) {
 		require.NoError(t, err)
 		require.Equal(t, "bar\nbaz\n", out)
 	})
+
+	t.Run("Custom Object", func(ctx context.Context, t *testctx.T) {
+		c := connect(ctx, t)
+		module := phpModule(t, c, "object-kind/custom")
+
+		out, err := module.
+			With(daggerShell("custom | get-urls-of-members $(dagger-organization)")).
+			Stdout(ctx)
+
+		require.NoError(t, err)
+		require.Equal(t, "bar\nbaz\n", out)
+	})
 }
 
 func phpModule(t *testctx.T, c *dagger.Client, moduleName string) *dagger.Container {
