@@ -15,7 +15,8 @@ use Dagger\GitRepository;
      */
     public function __construct(
         public string $url,
-        #[ListOfType(GitRepository::class)] public array $repositories,
+        #[ListOfType(GitRepository::class)]
+        public array $repositories,
         #[ListOfType(Account::class)] public array $members,
     ) {}
 }

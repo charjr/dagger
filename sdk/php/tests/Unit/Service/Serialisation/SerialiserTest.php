@@ -1,6 +1,6 @@
 <?php
 
-namespace Dagger\tests\Unit\Service\Serialisation;
+namespace Dagger\Tests\Unit\Service\Serialisation;
 
 use Dagger\Client;
 use Dagger\ContainerId;
@@ -8,7 +8,10 @@ use Dagger\Json;
 use Dagger\Platform;
 use Dagger\Service\Serialisation\AbstractScalarHandler;
 use Dagger\Service\Serialisation\AbstractScalarSubscriber;
+use Dagger\Service\Serialisation\CustomObjectHandler;
+use Dagger\Service\Serialisation\CustomObjectSubscriber;
 use Dagger\Service\Serialisation\Serialiser;
+use Dagger\Tests\Unit\Fixture\CustomObject;
 use Dagger\ValueObject\ListOfType;
 use Dagger\ValueObject\Type;
 use Generator;
@@ -76,6 +79,26 @@ class SerialiserTest extends TestCase
         self::assertEquals($value, $sut->deserialise($valueAsJSON, new Type($value::class)));
     }
 
+    #[Test, DataProvider('provideCustomObjects')]
+    public function itSerialisesObjects(
+        object $value,
+        string $valueAsJSON,
+    ): void {
+        $sut = new Serialiser();
+
+        self::assertEquals($valueAsJSON, $sut->serialise($value));
+    }
+
+    #[Test, DataProvider('provideCustomObjects')]
+    public function itDeserialisesObjects(
+        object $value,
+        string $valueAsJSON,
+    ): void {
+        $sut = new Serialiser([new CustomObjectSubscriber()], []);
+
+        self::assertEquals($value, $sut->deserialise($valueAsJSON, new Type($value::class)));
+    }
+
     /** @return Generator<array{ 0: mixed, 1: string }> */
     public static function provideScalars(): Generator
     {
@@ -125,6 +148,20 @@ class SerialiserTest extends TestCase
         yield ContainerId::class => [
             new ContainerId('1234-567-89'),
             '"1234-567-89"',
+        ];
+    }
+
+    /**
+     * @return \Generator<array{
+     *     0: object|null,
+     *     1: string,
+     * }>
+     */
+    public static function provideCustomObjects(): Generator
+    {
+        yield CustomObject::class => [
+            new CustomObject(['hello', 'world']),
+            '{"list_arg":["hello","world"]}',
         ];
     }
 }
