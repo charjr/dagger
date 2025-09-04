@@ -8,6 +8,8 @@ use Dagger\Attribute\{DaggerFunction, DaggerObject};
 
 #[DaggerObject] class VoidKind
 {
+    #[DaggerFunction] public function implicitVoid() {}
+
     #[DaggerFunction] public function getVoid(): void {}
 
     #[DaggerFunction] public function giveAndGetNull(null $arg): null

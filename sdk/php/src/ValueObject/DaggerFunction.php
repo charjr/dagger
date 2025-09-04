@@ -74,10 +74,11 @@ final readonly class DaggerFunction
     private static function getReturnType(
         ReflectionMethod $method
     ): ListOfType|Type {
-        $type = $method->getReturnType() ?? throw new RuntimeException(sprintf(
-            'DaggerFunction "%s" cannot be supported without a return type',
-            $method->name,
-        ));
+        $type = $method->getReturnType();
+
+        if ($type === null) {
+            return new Type('void');
+        }
 
         if (!($type instanceof ReflectionNamedType)) {
             throw new UnsupportedType(

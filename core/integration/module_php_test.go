@@ -186,6 +186,12 @@ func (PHPSuite) TestVoidKind(ctx context.Context, t *testctx.T) {
 	c := connect(ctx, t)
 	module := phpModule(t, c, "void-kind")
 
+	t.Run("implicit void return", func(ctx context.Context, t *testctx.T) {
+		out, err := module.With(daggerCall("implicit-void")).Stdout(ctx)
+		require.NoError(t, err)
+		require.Equal(t, "", out)
+	})
+
 	t.Run("void", func(ctx context.Context, t *testctx.T) {
 		out, err := module.With(daggerCall("get-void")).Stdout(ctx)
 		require.NoError(t, err)

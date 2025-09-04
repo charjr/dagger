@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
@@ -27,6 +28,19 @@ use RuntimeException;
 #[CoversClass(DaggerFunction::class)]
 class DaggerFunctionTest extends TestCase
 {
+    #[Test]
+    #[TestDox('Missing return types are implicitly cast to void')]
+    public function itAssumesVoidReturn(): void
+    {
+        $reflection = (new ReflectionClass(new #[DaggerObject] class () {
+             #[\Dagger\Attribute\DaggerFunction] public function foo() {}
+        }))->getMethod('foo');
+
+        $actual = DaggerFunction::fromReflection($reflection);
+
+        self::assertEquals(new Type('void'), $actual->returnType);
+    }
+
     #[Test]
     #[DataProvider('provideInvalidDaggerFunctions')]
     public function itCannotTakeInvalidDaggerFunctions(
@@ -70,16 +84,6 @@ class DaggerFunctionTest extends TestCase
                 'Method "noAttribute" is not considered a dagger function without the %s attribute',
                 \Dagger\Attribute\DaggerFunction::class,
             )),
-        ];
-
-        yield 'return typehint missing' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
-                #[\Dagger\Attribute\DaggerFunction]
-                public function noReturnType() {return 'hello world';}
-            }))->getMethod('noReturnType'),
-            new RuntimeException(
-                'DaggerFunction "noReturnType" cannot be supported without a return type'
-            ),
         ];
 
         yield 'missing attribute for returning arrays' => [
