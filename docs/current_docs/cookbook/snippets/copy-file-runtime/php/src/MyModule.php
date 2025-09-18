@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DaggerModule;
 
-use Dagger\Attribute\DaggerFunction;
-use Dagger\Attribute\DaggerObject;
-use Dagger\Attribute\Doc;
+use Dagger\Attribute\{DaggerObject, DaggerFunction, Doc};
 use Dagger\File;
 
 use function Dagger\dag;
@@ -15,10 +13,8 @@ use function Dagger\dag;
 class MyModule
 {
     #[DaggerFunction]
-    public function copyFile(
-        #[Doc('source file')]
-        File $source
-    ): void {
+    #[Doc('Copy a file to the Dagger module runtime container for custom processing')]
+    public function copyFile(File $source) {
         $source->export('foo.txt');
         // your custom logic here
         // for example, read and print the file in the Dagger Engine container
