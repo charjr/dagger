@@ -16,7 +16,11 @@ use GraphQL\Exception\QueryError;
 use function Dagger\dag;
 
 #[DaggerObject]
-#[Doc("The PHP SDK's development module.")]
+#[Doc(<<<DOCBLOCK
+    The PHP SDK's development module.
+
+    This forms part of the CI pipeline for the PHP SDK
+    DOCBLOCK)]
 final class PhpSdkDev
 {
     private const SDK_ROOT = "/src/sdk/php";
