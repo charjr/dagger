@@ -29,14 +29,14 @@ final readonly class Serialiser
                     foreach ($subscribers as $subscriber) {
                         $dispatcher->addSubscriber($subscriber);
                     }
-                }
+                },
             )
             ->configureHandlers(
                 function (HandlerRegistry $registry) use ($handlers) {
                     foreach ($handlers as $handler) {
                         $registry->registerSubscribingHandler($handler);
                     }
-                }
+                },
             )
             ->addDefaultHandlers()
             ->build();

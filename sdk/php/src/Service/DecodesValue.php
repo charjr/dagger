@@ -14,8 +14,7 @@ final readonly class DecodesValue
 {
     public function __construct(
         private Client $client,
-    ) {
-    }
+    ) {}
 
     /**
      * Converts a json_encoded value to the given type.
@@ -28,9 +27,9 @@ final readonly class DecodesValue
             return null;
         }
 
-        return $type instanceof Type ?
-            $this->decodeType($value, $type) :
-            $this->decodeListOfType($value, $type);
+        return $type instanceof Type
+            ? $this->decodeType($value, $type)
+            : $this->decodeListOfType($value, $type);
     }
 
     private function decodeListOfType(string $value, ListOfType $list): mixed
@@ -67,7 +66,7 @@ final readonly class DecodesValue
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot decode custom interfaces: %s',
-                    $type->name
+                    $type->name,
                 ));
             case TypeDefKind::OBJECT_KIND:
                 if ($type->isIdable()) {
@@ -79,7 +78,7 @@ final readonly class DecodesValue
 
                 throw new RuntimeException(sprintf(
                     'Currently cannot decode custom classes: %s',
-                    $type->name
+                    $type->name,
                 ));
             default:
                 throw new RuntimeException("Cannot decode $type->name");

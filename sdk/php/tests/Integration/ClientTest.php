@@ -29,9 +29,9 @@ class ClientTest extends TestCase
                     ->selectField(
                         (new QueryBuilder('file'))
                             ->setArgument('path', '/hello.txt')
-                            ->selectField('contents')
-                    )
-            )
+                            ->selectField('contents'),
+                    ),
+            ),
         );
 
         $result = $client->queryLeaf($qb, 'contents');

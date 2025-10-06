@@ -68,33 +68,33 @@ class ObjectVisitor extends AbstractVisitor
                 if (Helpers::isCustomScalar($returnType) && !Helpers::isVoidType($returnType)) {
                     $method->addBody(
                         'return new ' . $returnTypeClassName . '((string)$this->queryLeaf($leafQueryBuilder, ?));',
-                        [$fieldName]
+                        [$fieldName],
                     );
                 } elseif (Helpers::isEnumType($returnType)) {
                     $enumClass = Helpers::formatPhpFqcn(Helpers::formatType($returnType));
                     $method->addBody(
                         'return ' . $enumClass . '::from((string)$this->queryLeaf($leafQueryBuilder, ?));',
-                        [$fieldName]
+                        [$fieldName],
                     );
                 } elseif (Helpers::isVoidType($returnType)) {
                     $method->addBody(
                         '$this->queryLeaf($leafQueryBuilder, ?);',
-                        [$fieldName]
+                        [$fieldName],
                     );
                 } else {
                     $method->addBody(
                         'return (' . Helpers::formatType($returnType) . ')$this->queryLeaf($leafQueryBuilder, ?);',
-                        [$fieldName]
+                        [$fieldName],
                     );
                 }
             } else {
                 $method->addBody('$innerQueryBuilder = new \Dagger\Client\QueryBuilder(?);', [$fieldName]);
                 $this->generateMethodArgumentsBody($method, $fieldArgs, 'innerQueryBuilder');
                 $method->addBody(
-                    'return new ' .
-                    Helpers::formatPhpFqcn(Helpers::formatType($returnType)) .
-                    '($this->client, $this->queryBuilderChain->chain($innerQueryBuilder));',
-                    []
+                    'return new '
+                    . Helpers::formatPhpFqcn(Helpers::formatType($returnType))
+                    . '($this->client, $this->queryBuilderChain->chain($innerQueryBuilder));',
+                    [],
                 );
             }
         }

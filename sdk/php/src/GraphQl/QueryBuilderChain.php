@@ -11,9 +11,8 @@ readonly class QueryBuilderChain
      * @param array<QueryBuilder> $queryStack
      */
     public function __construct(
-        public array $queryStack = []
-    ) {
-    }
+        public array $queryStack = [],
+    ) {}
 
     public function chain(QueryBuilder $innerQueryBuilder): self
     {

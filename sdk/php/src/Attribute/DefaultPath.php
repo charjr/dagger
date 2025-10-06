@@ -9,6 +9,5 @@ final readonly class DefaultPath
 {
     public function __construct(
         public string $path,
-    ) {
-    }
+    ) {}
 }

@@ -19,7 +19,7 @@ abstract class AbstractClient
 
     public function __construct(
         Connection|Client $clientOrConnection,
-        protected readonly QueryBuilderChain $queryBuilderChain = new QueryBuilderChain()
+        protected readonly QueryBuilderChain $queryBuilderChain = new QueryBuilderChain(),
     ) {
         if ($clientOrConnection instanceof Connection) {
             $this->graphQlClient = $clientOrConnection->connect();
@@ -35,14 +35,14 @@ abstract class AbstractClient
         return $this->graphQlClient->runQuery($query);
     }
 
-    public function queryLeaf(QueryBuilder|Query $query, string $leafKey): null|array|string|int|float|bool
+    public function queryLeaf(QueryBuilder|Query $query, string $leafKey): array|string|int|float|bool|null
     {
         $response = $this->graphQlClient->runQuery($query);
         $data = $response->getData();
         foreach (
             new RecursiveIteratorIterator(
                 new RecursiveArrayIterator($data),
-                RecursiveIteratorIterator::CHILD_FIRST
+                RecursiveIteratorIterator::CHILD_FIRST,
             ) as $k => $value
         ) {
             if ($k === $leafKey) {

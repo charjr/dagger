@@ -1,5 +1,7 @@
 #!/usr/bin/env php
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This is the entry point for the module, called from the dagger engine.
@@ -9,12 +11,12 @@
 use Symfony\Component\Console\Application;
 use Dagger\Command\EntrypointCommand;
 
-if (file_exists(__DIR__.'/../../autoload.php')) {
+if (file_exists(__DIR__ . '/../../autoload.php')) {
     // The usual location, since this file will reside in vendor/bin
-    require __DIR__.'/../../autoload.php';
+    require __DIR__ . '/../../autoload.php';
 } else {
     // Useful when doing development on this package
-    require __DIR__.'/vendor/autoload.php';
+    require __DIR__ . '/vendor/autoload.php';
 }
 
 $console = new Application();

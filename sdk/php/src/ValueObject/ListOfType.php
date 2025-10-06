@@ -35,8 +35,8 @@ final readonly class ListOfType
 
         if ($type->getName() !== 'array') {
             throw new \DomainException(sprintf(
-                '%s should only be used for arrays. ' .
-                ' If this error occurred outside of developing the PHP SDK, it is a bug.',
+                '%s should only be used for arrays. '
+                . ' If this error occurred outside of developing the PHP SDK, it is a bug.',
                 self::class,
             ));
         }

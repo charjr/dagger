@@ -34,14 +34,14 @@ class EntrypointCommand extends Command
 
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $functionCall = dag()->currentFunctionCall();
 
         try {
-            return $functionCall->parentName() === '' ?
-                $this->registerModule($functionCall) :
-                $this->callFunctionOnParent($output, $functionCall);
+            return $functionCall->parentName() === ''
+                ? $this->registerModule($functionCall)
+                : $this->callFunctionOnParent($output, $functionCall);
         } catch (\Throwable $t) {
             $this->outputErrorInformation($input, $output, $t);
 
@@ -65,7 +65,7 @@ class EntrypointCommand extends Command
             foreach ($daggerObject->daggerFunctions as $daggerFunction) {
                 $func = dag()->function(
                     $daggerFunction->name,
-                    $this->getTypeDef($daggerFunction->returnType)
+                    $this->getTypeDef($daggerFunction->returnType),
                 );
 
                 if ($daggerFunction->description !== null) {
@@ -85,16 +85,16 @@ class EntrypointCommand extends Command
                     );
                 }
 
-                $objectTypeDef = $daggerFunction->isConstructor() ?
-                    $objectTypeDef->withConstructor($func) :
-                    $objectTypeDef->withFunction($func);
+                $objectTypeDef = $daggerFunction->isConstructor()
+                    ? $objectTypeDef->withConstructor($func)
+                    : $objectTypeDef->withFunction($func);
             }
 
             $daggerModule = $daggerModule->withObject($objectTypeDef);
         }
 
         $functionCall->returnValue(new Dagger\Json(json_encode(
-            (string) $daggerModule->id()
+            (string) $daggerModule->id(),
         )));
 
         return Command::SUCCESS;
@@ -104,9 +104,9 @@ class EntrypointCommand extends Command
         OutputInterface $output,
         Dagger\FunctionCall $functionCall,
     ): int {
-        $errorOutput = $output instanceof ConsoleOutputInterface ?
-            $output->getErrorOutput() :
-            $output;
+        $errorOutput = $output instanceof ConsoleOutputInterface
+            ? $output->getErrorOutput()
+            : $output;
 
         $parentName = sprintf('DaggerModule\\%s', $functionCall->parentName());
         $functionName = $functionCall->name();
@@ -114,14 +114,14 @@ class EntrypointCommand extends Command
         $args = $this->formatArguments(
             $parentName,
             $functionName,
-            json_decode(json_encode($functionCall->inputArgs()), true)
+            json_decode(json_encode($functionCall->inputArgs()), true),
         );
 
         try {
             if ($functionName !== '') {
                 $class = $this->getSerialiser()->deserialise(
                     (string) $functionCall->parent(),
-                    $parentName
+                    $parentName,
                 );
                 $result = ($class)->$functionName(...$args);
             } else {
@@ -136,8 +136,8 @@ class EntrypointCommand extends Command
             $output->writeln($e->getErrorDetails()['extensions']['stdout'] ?? '');
             $errorOutput->writeln($e->getErrorDetails()['extensions']['stderr'] ?? '');
 
-            return $e->getErrorDetails()['extensions']['exitCode'] ??
-                Command::FAILURE;
+            return $e->getErrorDetails()['extensions']['exitCode']
+                ?? Command::FAILURE;
         }
 
         $result = $this->getSerialiser()->serialise($result);
@@ -161,28 +161,28 @@ class EntrypointCommand extends Command
                 return $typeDef->withKind($type->typeDefKind);
             case TypeDefKind::SCALAR_KIND:
                 return $typeDef->withScalar(
-                    NormalizesClassName::shorten($type->name)
+                    NormalizesClassName::shorten($type->name),
                 );
             case TypeDefKind::ENUM_KIND:
                 return $typeDef->withEnum(
-                    NormalizesClassName::shorten($type->name)
+                    NormalizesClassName::shorten($type->name),
                 );
             case TypeDefKind::LIST_KIND:
                 return $typeDef->withListOf($this->getTypeDef($type->subtype));
             case TypeDefKind::INTERFACE_KIND:
                 throw new RuntimeException(sprintf(
                     'Currently cannot handle custom interfaces: %s',
-                    $type->name
+                    $type->name,
                 ));
             case TypeDefKind::OBJECT_KIND:
                 if ($type->isIdable()) {
                     return $typeDef->withObject(
-                        NormalizesClassName::shorten($type->name)
+                        NormalizesClassName::shorten($type->name),
                     );
                 }
 
                 return $typeDef->withObject(
-                    NormalizesClassName::trimLeadingNamespace($type->name)
+                    NormalizesClassName::trimLeadingNamespace($type->name),
                 );
             default:
                 throw new RuntimeException("No support exists for $type->name");
@@ -204,7 +204,7 @@ class EntrypointCommand extends Command
         }
 
         $daggerFunction = DaggerFunction::fromReflection(
-            new ReflectionMethod($className, $functionName)
+            new ReflectionMethod($className, $functionName),
         );
 
         $result = [];
@@ -216,7 +216,7 @@ class EntrypointCommand extends Command
                 if ($parameter->name === $argument['Name']) {
                     $result[$parameter->name] = $decodesValue(
                         $argument['Value'],
-                        $type
+                        $type,
                     );
                     continue 2;
                 }
@@ -247,7 +247,7 @@ class EntrypointCommand extends Command
     private function outputErrorInformation(
         InputInterface $input,
         OutputInterface $output,
-        \Throwable $t
+        \Throwable $t,
     ): void {
         $io = new SymfonyStyle($input, $output);
         $io->error($t->getMessage());

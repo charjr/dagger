@@ -17,7 +17,7 @@ class CodegenVisitor implements SchemaVisitor
 
     public function __construct(
         Schema $schema,
-        string $targetDirectory
+        string $targetDirectory,
     ) {
         $this->scalarVisitor = new ScalarVisitor($schema, $targetDirectory);
         $this->inputVisitor = new InputVisitor($schema, $targetDirectory);

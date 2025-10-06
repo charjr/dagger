@@ -18,11 +18,11 @@ class QueryBuilderChainTest extends TestCase
 
         $queryChainContainerFrom = $queryChainContainer->chain(
             (new QueryBuilder('from'))
-                ->setArgument('address', 'alpine:latest')
+                ->setArgument('address', 'alpine:latest'),
         );
 
         $queryChainContainerFromId = $queryChainContainerFrom->chain(
-            new QueryBuilder('id')
+            new QueryBuilder('id'),
         );
 
         $queryFromId = $queryChainContainerFromId->getFullQuery()->__toString();

@@ -32,7 +32,7 @@ class Example
         #[Doc('The directory to search')]
         Directory $directoryArg,
         #[Doc('The pattern to search for')]
-        string $pattern
+        string $pattern,
     ): string {
         return dag()
             ->container()

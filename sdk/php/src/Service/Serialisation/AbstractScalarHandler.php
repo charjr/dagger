@@ -34,7 +34,7 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
                 'type' => AbstractScalar::class,
-                'method' => 'deserialise'
+                'method' => 'deserialise',
             ],
         ];
     }
@@ -43,7 +43,7 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         JsonSerializationVisitor $visitor,
         AbstractScalar $abstractScalar,
         array $type,
-        Context $context
+        Context $context,
     ): string {
         return (string) $abstractScalar;
     }
@@ -52,7 +52,7 @@ final readonly class AbstractScalarHandler implements SubscribingHandlerInterfac
         JsonDeserializationVisitor $visitor,
         string $abstractScalar,
         array $type,
-        Context $context
+        Context $context,
     ): AbstractScalar {
         $originalClassName = $type['params'][
             AbstractScalarSubscriber::ORIGINAL_CLASS_NAME

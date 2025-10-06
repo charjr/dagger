@@ -66,8 +66,8 @@ final readonly class Type
 
         if ($nameOfType === 'array') {
             throw new DomainException(sprintf(
-                '%s should not be constructed for arrays, use %s instead.' .
-                ' If this error occurred outside of developing the PHP SDK, it is a bug.',
+                '%s should not be constructed for arrays, use %s instead.'
+                . ' If this error occurred outside of developing the PHP SDK, it is a bug.',
                 self::class,
                 ListOfType::class,
             ));

@@ -12,11 +12,10 @@ abstract class AbstractObject
 
     public function __construct(
         protected readonly AbstractClient $client,
-        protected readonly QueryBuilderChain $queryBuilderChain
-    ) {
-    }
+        protected readonly QueryBuilderChain $queryBuilderChain,
+    ) {}
 
-    protected function queryLeaf(QueryBuilder $leafQueryBuilder, string $leafKey): null|array|string|int|float|bool
+    protected function queryLeaf(QueryBuilder $leafQueryBuilder, string $leafKey): array|string|int|float|bool|null
     {
         $queryBuilderChain = $this->queryBuilderChain->chain($leafQueryBuilder);
 

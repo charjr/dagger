@@ -19,7 +19,7 @@ class GenerateModuleClassnameCommand extends Command
     }
     protected function execute(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
 
         $classname = $this->toSuitableClassname($input->getArgument('classname'));

@@ -46,7 +46,7 @@ final readonly class DaggerObject
 
         $methodReflections = array_filter(
             $class->getMethods(\ReflectionMethod::IS_PUBLIC),
-            fn($m) => !empty($m->getAttributes(Attribute\DaggerFunction::class))
+            fn($m) => !empty($m->getAttributes(Attribute\DaggerFunction::class)),
         );
 
         $daggerFunctions = array_map(
@@ -57,7 +57,7 @@ final readonly class DaggerObject
         return new self(
             name: $class->name,
             description: $description,
-            daggerFunctions: $daggerFunctions
+            daggerFunctions: $daggerFunctions,
         );
     }
 }

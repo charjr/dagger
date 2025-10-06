@@ -26,9 +26,9 @@ final readonly class Argument
     ) {
         if (!$type->nullable && $this->default == new Json('null')) {
             throw new RuntimeException(sprintf(
-                'Non-nullable argument "%s" should not default to null.' .
-                ' This error should only occur if constructed manually.' .
-                ' Otherwise, it is a bug.',
+                'Non-nullable argument "%s" should not default to null.'
+                . ' This error should only occur if constructed manually.'
+                . ' Otherwise, it is a bug.',
                 $this->name,
             ));
         }
@@ -64,7 +64,7 @@ final readonly class Argument
         );
     }
 
-    private static function getType(ReflectionParameter $parameter): ListOfType | Type
+    private static function getType(ReflectionParameter $parameter): ListOfType|Type
     {
         $type = $parameter->getType();
 
@@ -92,15 +92,14 @@ final readonly class Argument
     private static function getDefault(ReflectionParameter $parameter): ?Json
     {
         if ($parameter->isDefaultValueAvailable()) {
-            $betterReflection = BetterReflectionParameter
-                ::createFromClassNameAndMethod(
-                    $parameter->getDeclaringClass()->getName(),
-                    $parameter->getDeclaringFunction()->getName(),
-                    $parameter->getName(),
-                );
+            $betterReflection = BetterReflectionParameter::createFromClassNameAndMethod(
+                $parameter->getDeclaringClass()->getName(),
+                $parameter->getDeclaringFunction()->getName(),
+                $parameter->getName(),
+            );
             $default = $betterReflection->getDefaultValue();
             return new Json(json_encode(
-                $default instanceof IdAble ? (string) $default->id() : $default
+                $default instanceof IdAble ? (string) $default->id() : $default,
             ));
         }
 

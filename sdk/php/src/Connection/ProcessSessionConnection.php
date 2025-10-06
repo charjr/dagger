@@ -23,7 +23,7 @@ class ProcessSessionConnection extends Connection implements LoggerAwareInterfac
 
     public function __construct(
         private readonly string $workDir,
-        private readonly CliDownloader $cliDownloader
+        private readonly CliDownloader $cliDownloader,
     ) {
         $this->logger = new NullLogger();
     }

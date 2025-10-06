@@ -12,10 +12,10 @@ use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
 final readonly class IdableSubscriber implements EventSubscriberInterface
 {
-    public const ORIGINAL_CLASS_NAME =
-        'The original class name before ' .
-        'being changed to ' .
-        IdAble::class;
+    public const ORIGINAL_CLASS_NAME
+        = 'The original class name before '
+        . 'being changed to '
+        . IdAble::class;
 
     public static function getSubscribedEvents(): array
     {
@@ -55,7 +55,7 @@ final readonly class IdableSubscriber implements EventSubscriberInterface
 
         $event->setType(IdAble::class, array_merge_recursive(
             $event->getType()['params'],
-            [self::ORIGINAL_CLASS_NAME => $className]
+            [self::ORIGINAL_CLASS_NAME => $className],
         ));
     }
 }
