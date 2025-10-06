@@ -55,7 +55,7 @@ class SerialiserTest extends TestCase
     ): void {
         $sut = new Serialiser(
             [new AbstractScalarSubscriber()],
-            [new AbstractScalarHandler()]
+            [new AbstractScalarHandler()],
         );
 
         self::assertSame($valueAsJSON, $sut->serialise($value));
@@ -68,7 +68,7 @@ class SerialiserTest extends TestCase
     ): void {
         $sut = new Serialiser(
             [new AbstractScalarSubscriber()],
-            [new AbstractScalarHandler()]
+            [new AbstractScalarHandler()],
         );
 
         self::assertEquals($value, $sut->deserialise($valueAsJSON, $value::class));

@@ -27,25 +27,25 @@ final readonly class FindsSrcDirectory
     {
         $dir = is_null($dir) ? __DIR__ : rtrim($dir, '/');
 
-        return $this->searchDirectory($dir) ??
-            $this->searchUpwards($dir) ??
-            throw new RuntimeException('Cannot find module src directory');
+        return $this->searchDirectory($dir)
+            ?? $this->searchUpwards($dir)
+            ?? throw new RuntimeException('Cannot find module src directory');
     }
 
     private function searchDirectory(string $dir): ?string
     {
-        return file_exists("$dir/entrypoint.php") && is_dir("$dir/src") ?
-            "$dir/src" :
-            null;
+        return file_exists("$dir/entrypoint.php") && is_dir("$dir/src")
+            ? "$dir/src"
+            : null;
     }
 
     private function searchUpwards(string $dir): ?string
     {
         $parentDir = dirname($dir);
 
-        return $parentDir === '.' ?
-            null :
-            $this->searchDirectory($parentDir) ??
-            $this->searchUpwards($parentDir);
+        return $parentDir === '.'
+            ? null
+            : $this->searchDirectory($parentDir)
+            ?? $this->searchUpwards($parentDir);
     }
 }

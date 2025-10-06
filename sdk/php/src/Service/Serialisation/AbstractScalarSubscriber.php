@@ -11,10 +11,10 @@ use JMS\Serializer\EventDispatcher\PreSerializeEvent;
 
 final readonly class AbstractScalarSubscriber implements EventSubscriberInterface
 {
-    public const ORIGINAL_CLASS_NAME =
-        'The original class name before ' .
-        'being changed to ' .
-        AbstractScalar::class;
+    public const ORIGINAL_CLASS_NAME
+        = 'The original class name before '
+        . 'being changed to '
+        . AbstractScalar::class;
 
     public static function getSubscribedEvents(): array
     {
@@ -54,7 +54,7 @@ final readonly class AbstractScalarSubscriber implements EventSubscriberInterfac
 
         $event->setType(AbstractScalar::class, array_merge_recursive(
             $event->getType()['params'],
-            [self::ORIGINAL_CLASS_NAME => $className]
+            [self::ORIGINAL_CLASS_NAME => $className],
         ));
     }
 }

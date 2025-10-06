@@ -8,9 +8,7 @@ use Stringable;
 
 abstract readonly class AbstractScalar implements Stringable
 {
-    public function __construct(private string $value)
-    {
-    }
+    public function __construct(private string $value) {}
 
     public function getValue(): string
     {

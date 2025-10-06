@@ -44,7 +44,7 @@ class FindsSrcDirectoryTest extends TestCase
 
         self::assertSame(
             sprintf('%s/%s', $root, $expected),
-            $sut(sprintf('%s/%s', $root, $dir))
+            $sut(sprintf('%s/%s', $root, $dir)),
         );
     }
 

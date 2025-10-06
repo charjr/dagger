@@ -20,8 +20,7 @@ final readonly class DaggerFunction
         public ?string $description,
         public array $arguments,
         public ListOfType|Type $returnType,
-    ) {
-    }
+    ) {}
 
     public function isConstructor(): bool
     {
@@ -40,7 +39,7 @@ final readonly class DaggerFunction
             throw new RuntimeException(sprintf(
                 'Method "%s" is not considered a dagger function without the %s attribute',
                 $method->getName(),
-                Attribute\DaggerFunction::class
+                Attribute\DaggerFunction::class,
             ));
         }
 
@@ -54,14 +53,14 @@ final readonly class DaggerFunction
             $method->getParameters(),
         );
 
-        return $method->isConstructor() ?
-            new self(
+        return $method->isConstructor()
+            ? new self(
                 name: '',
                 description: null,
                 arguments: $parameters,
-                returnType: new Type($method->getDeclaringClass()->name)
-            ) :
-            new self(
+                returnType: new Type($method->getDeclaringClass()->name),
+            )
+            : new self(
                 name: $method->name,
                 description: $description,
                 arguments: $parameters,
@@ -70,7 +69,7 @@ final readonly class DaggerFunction
     }
 
     private static function getReturnType(
-        ReflectionMethod $method
+        ReflectionMethod $method,
     ): ListOfType|Type {
         $type = $method->getReturnType() ?? throw new RuntimeException(sprintf(
             'DaggerFunction "%s" cannot be supported without a return type',

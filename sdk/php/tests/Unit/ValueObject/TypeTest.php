@@ -36,7 +36,7 @@ class TypeTest extends TestCase
     #[Test]
     #[DataProvider('provideUnsupportedReflectionTypes')]
     public function itCannotBuildFromUnsupportedReflectionType(
-        ReflectionType $unsupportedReflectionType
+        ReflectionType $unsupportedReflectionType,
     ): void {
         self::expectException(Dagger\Exception\UnsupportedType::class);
 
@@ -55,13 +55,15 @@ class TypeTest extends TestCase
     #[Test]
     #[DataProvider('provideIdAbleTypes')]
     #[DataProvider('provideNonIdAbleTypes')]
-    public function itSaysIfItIsIdAble(bool $expected, string $type): void {
+    public function itSaysIfItIsIdAble(bool $expected, string $type): void
+    {
         self::assertSame($expected, (new Type($type))->isIdable());
     }
 
     #[Test]
     #[DataProvider('provideTypeDefKinds')]
-    public function itHasTypeDefKind(Dagger\TypeDefKind $expected, string $type): void {
+    public function itHasTypeDefKind(Dagger\TypeDefKind $expected, string $type): void
+    {
         self::assertEquals($expected, (new Type($type))->typeDefKind);
     }
 
@@ -69,17 +71,17 @@ class TypeTest extends TestCase
     public static function provideUnsupportedReflectionTypes(): Generator
     {
         yield 'union type' => [
-            (new ReflectionFunction(function(): Iterator&Countable {}))
+            (new ReflectionFunction(function (): Iterator&Countable {}))
                 ->getReturnType(),
         ];
 
         yield 'intersection type' => [
-            (new ReflectionFunction(function(): Iterator|Countable {}))
+            (new ReflectionFunction(function (): Iterator|Countable {}))
                 ->getReturnType(),
         ];
 
         yield 'custom reflection type' => [
-            (new class () extends ReflectionType {}),
+            (new class extends ReflectionType {}),
         ];
     }
 
@@ -132,8 +134,7 @@ class TypeTest extends TestCase
 
         yield Dagger\Container::class => [
             new Type(Dagger\Container::class, false),
-            $reflectReturnType(fn(): Dagger\Container => self
-                ::createStub(Dagger\Container::class)),
+            $reflectReturnType(fn(): Dagger\Container => self::createStub(Dagger\Container::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\Container::class) => [
@@ -143,8 +144,7 @@ class TypeTest extends TestCase
 
         yield Dagger\Directory::class => [
             new Type(Dagger\Directory::class, false),
-            $reflectReturnType(fn(): Dagger\Directory => self
-                ::createStub(Dagger\Directory::class)),
+            $reflectReturnType(fn(): Dagger\Directory => self::createStub(Dagger\Directory::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\Directory::class) => [
@@ -154,8 +154,7 @@ class TypeTest extends TestCase
 
         yield Dagger\File::class => [
             new Type(Dagger\File::class, false),
-            $reflectReturnType(fn(): Dagger\File => self
-                ::createStub(Dagger\File::class)),
+            $reflectReturnType(fn(): Dagger\File => self::createStub(Dagger\File::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\File::class) => [
@@ -199,7 +198,7 @@ class TypeTest extends TestCase
         yield 'void' => [Dagger\TypeDefKind::VOID_KIND, 'void'];
         yield DateTimeImmutable::class => [
             Dagger\TypeDefKind::OBJECT_KIND,
-            DateTimeImmutable::class
+            DateTimeImmutable::class,
         ];
 
         yield 'abstract scalar' => [
@@ -240,7 +239,7 @@ class TypeTest extends TestCase
             Dagger\GeneratedCode::class,
             Dagger\GitRef::class,
             Dagger\GitRepository::class,
-//            Dagger\Host::class, //Host has deprecated code
+            //            Dagger\Host::class, //Host has deprecated code
             Dagger\InputTypeDef::class,
             Dagger\InterfaceTypeDef::class,
             Dagger\Label::class,
@@ -257,7 +256,7 @@ class TypeTest extends TestCase
         ];
     }
 
-        /** @return class-string[] */
+    /** @return class-string[] */
     private static function provideAbstractScalars(): array
     {
         return [

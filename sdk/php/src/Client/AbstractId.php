@@ -2,6 +2,4 @@
 
 namespace Dagger\Client;
 
-abstract readonly class AbstractId extends AbstractScalar
-{
-}
+abstract readonly class AbstractId extends AbstractScalar {}

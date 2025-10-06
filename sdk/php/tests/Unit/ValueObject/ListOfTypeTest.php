@@ -34,7 +34,7 @@ class ListOfTypeTest extends TestCase
     #[Test]
     #[DataProvider('provideUnsupportedReflectionTypes')]
     public function itOnlyBuildsFromReflectionNamedType(
-        ReflectionType $unsupportedReflectionType
+        ReflectionType $unsupportedReflectionType,
     ): void {
         self::expectException(Dagger\Exception\UnsupportedType::class);
 
@@ -70,10 +70,11 @@ class ListOfTypeTest extends TestCase
     }
 
     #[Test]
-    public function itIsListTypeDefKind(): void {
+    public function itIsListTypeDefKind(): void
+    {
         self::assertEquals(
             TypeDefKind::LIST_KIND,
-            (new ListOfType(new Type('string')))->typeDefKind
+            (new ListOfType(new Type('string')))->typeDefKind,
         );
     }
 
@@ -81,17 +82,17 @@ class ListOfTypeTest extends TestCase
     public static function provideUnsupportedReflectionTypes(): Generator
     {
         yield 'union type' => [
-            (new ReflectionFunction(function(): Iterator&Countable {}))
+            (new ReflectionFunction(function (): Iterator&Countable {}))
                 ->getReturnType(),
         ];
 
         yield 'intersection type' => [
-            (new ReflectionFunction(function(): Iterator|Countable {}))
+            (new ReflectionFunction(function (): Iterator|Countable {}))
                 ->getReturnType(),
         ];
 
         yield 'custom reflection type' => [
-            (new class () extends ReflectionType {}),
+            (new class extends ReflectionType {}),
         ];
     }
 
@@ -115,8 +116,7 @@ class ListOfTypeTest extends TestCase
         yield 'nullable string' =>  [$reflectReturnType(fn(): ?string => '')];
 
         yield Dagger\Container::class => [
-            $reflectReturnType(fn(): Dagger\Container => self
-                ::createStub(Dagger\Container::class)),
+            $reflectReturnType(fn(): Dagger\Container => self::createStub(Dagger\Container::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\Container::class) => [
@@ -124,8 +124,7 @@ class ListOfTypeTest extends TestCase
         ];
 
         yield Dagger\Directory::class => [
-            $reflectReturnType(fn(): Dagger\Directory => self
-                ::createStub(Dagger\Directory::class)),
+            $reflectReturnType(fn(): Dagger\Directory => self::createStub(Dagger\Directory::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\Directory::class) => [
@@ -133,8 +132,7 @@ class ListOfTypeTest extends TestCase
         ];
 
         yield Dagger\File::class => [
-            $reflectReturnType(fn(): Dagger\File => self
-                ::createStub(Dagger\File::class)),
+            $reflectReturnType(fn(): Dagger\File => self::createStub(Dagger\File::class)),
         ];
 
         yield sprintf('nullable %s', Dagger\File::class) => [
@@ -180,13 +178,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('string', true), true),
                     true,
                 ),
-                true
+                true,
             ),
             $nullableArrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('string', true),
-                    true
+                    true,
                 ),
                 true,
             ),
@@ -198,13 +196,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('string', true), true),
                     true,
                 ),
-                true
+                true,
             ),
             $nullableArrayReflection,
             new Attribute\ReturnsListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('string', true),
-                    true
+                    true,
                 ),
                 true,
             ),
@@ -216,13 +214,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('string', false), false),
                     false,
                 ),
-                false
+                false,
             ),
             $arrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('string', false),
-                    false
+                    false,
                 ),
                 false,
             ),
@@ -258,13 +256,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('int', true), true),
                     true,
                 ),
-                true
+                true,
             ),
             $nullableArrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('int', true),
-                    true
+                    true,
                 ),
                 true,
             ),
@@ -276,13 +274,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('int', false), false),
                     false,
                 ),
-                false
+                false,
             ),
             $arrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('int', false),
-                    false
+                    false,
                 ),
                 false,
             ),
@@ -318,13 +316,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('bool', true), true),
                     true,
                 ),
-                true
+                true,
             ),
             $nullableArrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('bool', true),
-                    true
+                    true,
                 ),
                 true,
             ),
@@ -336,13 +334,13 @@ class ListOfTypeTest extends TestCase
                     new ListOfType(new Type('bool', false), false),
                     false,
                 ),
-                false
+                false,
             ),
             $arrayReflection,
             new Attribute\ListOfType(
                 new Attribute\ListOfType(
                     new Attribute\ListOfType('bool', false),
-                    false
+                    false,
                 ),
                 false,
             ),

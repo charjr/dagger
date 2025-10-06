@@ -10,6 +10,5 @@ final readonly class ListOfType
     public function __construct(
         public ListOfType|string $type,
         public bool $nullable = false,
-    ) {
-    }
+    ) {}
 }

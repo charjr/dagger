@@ -18,8 +18,8 @@ abstract class Connection
 
         if (!empty($workingDir)) {
             throw new InvalidArgumentException(
-                'cannot configure workdir for existing session' .
-                ' (please use --workdir or host.directory with absolute paths instead)'
+                'cannot configure workdir for existing session'
+                . ' (please use --workdir or host.directory with absolute paths instead)',
             );
         }
 

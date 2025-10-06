@@ -22,19 +22,19 @@ final class FindsDaggerObjects
     {
         $reflector = new DefaultReflector(new DirectoriesSourceLocator(
             [$dir],
-            (new BetterReflection())->astLocator()
+            (new BetterReflection())->astLocator(),
         ));
 
         $daggerObjects = array_filter(
             $reflector->reflectAllClasses(),
-            fn($class) => $this->isDaggerObject($class)
+            fn($class) => $this->isDaggerObject($class),
         );
 
         return array_values(array_map(
             fn($d) => ValueObject\DaggerObject::fromReflection(
-                new \ReflectionClass($d->getName())
+                new \ReflectionClass($d->getName()),
             ),
-            $daggerObjects
+            $daggerObjects,
         ));
     }
 

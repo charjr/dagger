@@ -18,7 +18,7 @@ class EnvSessionConnection extends Connection
 
         $this->client = self::createGraphQlClient(
             $port,
-            $token
+            $token,
         );
 
         return $this->client;

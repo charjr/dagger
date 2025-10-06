@@ -63,8 +63,11 @@ class DaggerFunctionTest extends TestCase
     public static function provideInvalidDaggerFunctions(): Generator
     {
         yield 'DaggerFunction attribute missing' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
-                public function noAttribute(): string {return 'hello world';}
+            (new ReflectionClass(new #[DaggerObject] class {
+                public function noAttribute(): string
+                {
+                    return 'hello world';
+                }
             }))->getMethod('noAttribute'),
             new RuntimeException(sprintf(
                 'Method "noAttribute" is not considered a dagger function without the %s attribute',
@@ -73,19 +76,25 @@ class DaggerFunctionTest extends TestCase
         ];
 
         yield 'return typehint missing' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
+            (new ReflectionClass(new #[DaggerObject] class {
                 #[\Dagger\Attribute\DaggerFunction]
-                public function noReturnType() {return 'hello world';}
+                public function noReturnType()
+                {
+                    return 'hello world';
+                }
             }))->getMethod('noReturnType'),
             new RuntimeException(
-                'DaggerFunction "noReturnType" cannot be supported without a return type'
+                'DaggerFunction "noReturnType" cannot be supported without a return type',
             ),
         ];
 
         yield 'missing attribute for returning arrays' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
+            (new ReflectionClass(new #[DaggerObject] class {
                 #[\Dagger\Attribute\DaggerFunction]
-                public function returnsArrayWithoutAttribute(): array {return ['hello', 'world'];}
+                public function returnsArrayWithoutAttribute(): array
+                {
+                    return ['hello', 'world'];
+                }
             }))->getMethod('returnsArrayWithoutAttribute'),
             MissingAttribute::returnsListOfType('returnsArrayWithoutAttribute'),
         ];
@@ -133,7 +142,7 @@ class DaggerFunctionTest extends TestCase
             new ReflectionMethod(
                 DaggerObjectWithDaggerFunctions::class,
                 'returnInt',
-            )
+            ),
         ];
 
         yield 'one parameter' => [
@@ -156,7 +165,7 @@ class DaggerFunctionTest extends TestCase
                 [new Argument(
                     'value',
                     'this value should have a description',
-                    new Type('string')
+                    new Type('string'),
                 )],
                 new Type('void'),
             ),

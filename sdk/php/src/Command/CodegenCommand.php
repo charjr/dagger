@@ -16,13 +16,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[AsCommand('dagger:codegen')]
 class CodegenCommand extends Command
 {
-    private const WRITE_DIR =
-        __DIR__ . DIRECTORY_SEPARATOR .
-        '..' .
-        DIRECTORY_SEPARATOR .
-        '..' .
-        DIRECTORY_SEPARATOR .
-        'generated';
+    private const WRITE_DIR
+        = __DIR__ . DIRECTORY_SEPARATOR
+        . '..'
+        . DIRECTORY_SEPARATOR
+        . '..'
+        . DIRECTORY_SEPARATOR
+        . 'generated';
 
     private Connection $daggerConnection;
 
@@ -39,7 +39,7 @@ class CodegenCommand extends Command
             null,
             InputArgument::OPTIONAL,
             'Path to the schema json file',
-            null
+            null,
         );
     }
 

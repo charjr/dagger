@@ -19,8 +19,7 @@ use Dagger\ValueObject;
 final class DaggerObjectWithDaggerFunctions
 {
     #[DaggerFunction]
-    public function __construct() {
-    }
+    public function __construct() {}
 
     #[DaggerFunction]
     public function returnBool(): bool
@@ -42,84 +41,66 @@ final class DaggerObjectWithDaggerFunctions
     }
 
     #[DaggerFunction]
-    public function requiredBool(bool $value): void {
-    }
+    public function requiredBool(bool $value): void {}
 
     #[DaggerFunction]
-    public function requiredInt(int $value): void
-    {
-    }
+    public function requiredInt(int $value): void {}
 
     #[DaggerFunction]
-    public function requiredString(string $value): void
-    {
-    }
+    public function requiredString(string $value): void {}
 
     #[DaggerFunction]
-    public function implicitlyOptionalString(?string $value): void {
-    }
+    public function implicitlyOptionalString(?string $value): void {}
 
     #[DaggerFunction]
-    public function explicitlyOptionalString(?string $value = null): void
-    {
-    }
+    public function explicitlyOptionalString(?string $value = null): void {}
 
     #[DaggerFunction]
-    public function stringWithDefault(?string $value = 'test'): void
-    {
-    }
+    public function stringWithDefault(?string $value = 'test'): void {}
 
     #[DaggerFunction]
     public function annotatedString(
         #[Doc('this value should have a description')]
-        string $value
-    ): void {
-    }
+        string $value,
+    ): void {}
 
     #[DaggerFunction]
-    public function requiredStrings(string $first, string $second): void
-    {
-    }
+    public function requiredStrings(string $first, string $second): void {}
 
     #[DaggerFunction]
     public function stringsWithDefaults(
         string $first = 'first',
         string $second = 'second',
-    ): void {
-    }
+    ): void {}
 
     #[DaggerFunction]
-    public function implicitlyOptionalContainer(?Container $value): void
-    {
-    }
+    public function implicitlyOptionalContainer(?Container $value): void {}
 
     #[DaggerFunction]
-    public function explicitlyOptionalFile(?File $value): void
-    {
-    }
+    public function explicitlyOptionalFile(?File $value): void {}
 
     #[DaggerFunction]
     public function fileWithDefaultPath(
         #[DefaultPath('./test')]
-        File $value
-    ): void {
-    }
+        File $value,
+    ): void {}
 
 
     #[DaggerFunction]
     public function directoryWithIgnore(
         #[DefaultPath('.')]
-            #[Ignore('vendor/', 'generated/', 'env')]
-        Directory $value
-    ): void {
-    }
+        #[Ignore('vendor/', 'generated/', 'env')]
+        Directory $value,
+    ): void {}
 
-    public function notADaggerFunction(): string {
+    public function notADaggerFunction(): string
+    {
         return 'DaggerFunctions MUST have the DaggerFunction Attribute';
     }
 
     #[DaggerFunction]
-    private function privateDaggerFunction(): string {
+    private function privateDaggerFunction(): string
+    {
         return 'DaggerFunctions MUST be public';
     }
 
@@ -133,25 +114,25 @@ final class DaggerObjectWithDaggerFunctions
                     '',
                     null,
                     [],
-                    new ValueObject\Type(self::class)
+                    new ValueObject\Type(self::class),
                 ),
                 new ValueObject\DaggerFunction(
                     'returnBool',
                     null,
                     [],
-                    new ValueObject\Type('bool')
+                    new ValueObject\Type('bool'),
                 ),
                 new ValueObject\DaggerFunction(
                     'returnInt',
                     'this method returns 1',
                     [],
-                    new ValueObject\Type('int')
+                    new ValueObject\Type('int'),
                 ),
                 new ValueObject\DaggerFunction(
                     'returnString',
                     null,
                     [],
-                    new ValueObject\Type('string')
+                    new ValueObject\Type('string'),
                 ),
                 new ValueObject\DaggerFunction(
                     'requiredBool',
@@ -162,7 +143,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('bool'),
                             null,
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -175,7 +156,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('int'),
                             null,
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -188,7 +169,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('string'),
                             null,
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -201,7 +182,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('string', true),
                             new Json('null'),
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -214,7 +195,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('string', true),
                             new Json('null'),
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -227,7 +208,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('string', true),
                             new Json('"test"'),
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -278,7 +259,7 @@ final class DaggerObjectWithDaggerFunctions
                             '',
                             new ValueObject\Type('string'),
                             new Json('"second"'),
-                        )
+                        ),
                     ],
                     new ValueObject\Type('void'),
                 ),
@@ -337,7 +318,7 @@ final class DaggerObjectWithDaggerFunctions
                     ],
                     new ValueObject\Type('void'),
                 ),
-            ]
+            ],
         );
     }
 }

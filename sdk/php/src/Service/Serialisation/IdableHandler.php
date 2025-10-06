@@ -18,8 +18,7 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
 {
     public function __construct(
         private Client $client,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<array{
@@ -42,7 +41,7 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
                 'type' => IdAble::class,
-                'method' => 'deserialise'
+                'method' => 'deserialise',
             ],
         ];
     }
@@ -51,7 +50,7 @@ final readonly class IdableHandler implements SubscribingHandlerInterface
         JsonSerializationVisitor $visitor,
         IdAble $idAble,
         array $type,
-        Context $context
+        Context $context,
     ): string {
         return (string) $idAble->id();
     }

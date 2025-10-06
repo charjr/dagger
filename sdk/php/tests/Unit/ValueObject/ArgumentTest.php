@@ -66,19 +66,19 @@ class ArgumentTest extends TestCase
     public static function provideInvalidArguments(): Generator
     {
         yield 'Missing typehint for an argument' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
+            (new ReflectionClass(new #[DaggerObject] class {
                 #[DaggerFunction]
                 public function func($noType): void {}
             }))->getMethod('func')->getParameters()[0],
-            new RuntimeException('Argument "noType" cannot be supported without a typehint')
+            new RuntimeException('Argument "noType" cannot be supported without a typehint'),
         ];
 
         yield 'Missing ListOfType on array argument' => [
-            (new ReflectionClass(new #[DaggerObject] class () {
+            (new ReflectionClass(new #[DaggerObject] class {
                 #[DaggerFunction]
                 public function func(array $noSubtype): void {}
             }))->getMethod('func')->getParameters()[0],
-            MissingAttribute::listOfType('func', 'noSubtype')
+            MissingAttribute::listOfType('func', 'noSubtype'),
         ];
     }
 
@@ -105,7 +105,7 @@ class ArgumentTest extends TestCase
                 DaggerObjectWithDaggerFunctions::class,
                 'implicitlyOptionalString',
                 'value',
-            )
+            ),
         ];
 
         yield 'explicitly optional string' => [
@@ -119,7 +119,7 @@ class ArgumentTest extends TestCase
                 DaggerObjectWithDaggerFunctions::class,
                 'explicitlyOptionalString',
                 'value',
-            )
+            ),
         ];
 
         yield 'annotated string' => [
@@ -147,7 +147,7 @@ class ArgumentTest extends TestCase
                 DaggerObjectWithDaggerFunctions::class,
                 'implicitlyOptionalContainer',
                 'value',
-            )
+            ),
         ];
 
         yield 'explicitly optional File' => [
@@ -161,7 +161,7 @@ class ArgumentTest extends TestCase
                 DaggerObjectWithDaggerFunctions::class,
                 'explicitlyOptionalFile',
                 'value',
-            )
+            ),
         ];
 
         yield 'File with default path' => [
@@ -176,7 +176,7 @@ class ArgumentTest extends TestCase
                 DaggerObjectWithDaggerFunctions::class,
                 'fileWithDefaultPath',
                 'value',
-            )
+            ),
         ];
     }
 
