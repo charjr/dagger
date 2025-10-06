@@ -2,16 +2,14 @@
 
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
-    ->notPath('src/Connection/version.php')
     ->exclude([
-        'generated'
-    ])
-;
+        'generated',
+    ]);
 
 return (new PhpCsFixer\Config())
-    ->setRules([
-        '@Symfony' => true,
-        'global_namespace_import' => true,
-    ])
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
+    ->setCacheFile(__DIR__ . '/.cache/php-cs-fixer')
     ->setFinder($finder)
-;
+    ->setRules([
+        '@PER-CS3x0' => true,
+    ]);
